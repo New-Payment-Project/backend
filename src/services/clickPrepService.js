@@ -13,7 +13,7 @@ exports.preparePayment = async ({ click_trans_id, service_id, click_paydoc_id, m
         else if (course.price !== amount) {
             return { error: -2, error_note: 'Invalid amount' };
         }
-        console.log(sign_string, "prepservice")
+        console.log(sign_string, "prepservice") 
         const expectedSignString = crypto
             .createHash('md5')
             .update(`${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${amount}${action}${sign_time}`)
