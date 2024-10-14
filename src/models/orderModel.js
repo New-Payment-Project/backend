@@ -45,6 +45,14 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: false
   },
+  tgUsername: {
+    type: String,
+    required: false
+  },
+  passport: {
+    type: String,
+    required: false
+  },
   reason: {
     type: Number
   },

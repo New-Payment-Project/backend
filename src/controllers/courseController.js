@@ -10,27 +10,29 @@ const getCourses = async (req, res) => {
 };
 
 const createCourse = async (req, res) => {
-    const { title, description, price, route } = req.body;
-
+    const { title, description, price, route, prefix } = req.body;
+  
     try {
       const existingCourse = await Course.findOne({ route });
       if (existingCourse) {
         return res.status(409).json({ message: 'Course with this route already exists' });
       }
-  
       const course = new Course({
         title,
         description,
         price,
         route,
+        prefix,
       });
   
       const newCourse = await course.save();
       res.status(201).json(newCourse);
+  
     } catch (err) {
       res.status(400).json({ message: err.message });
     }
   };
+  
   
 
 const deleteCourse = async (req, res) => {

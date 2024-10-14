@@ -19,28 +19,19 @@ const invoiceSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  tgUsername: {
+    type: String,
+    required: false
+  },
+  passport: {
+    type: String,
+    required: true
+  },
   status: {
     type: String,
     enum: ["НЕ ОПЛАЧЕНО", "ВЫСТАВЛЕНО", "ОПЛАЧЕНО", "ОТМЕНЕНО"],
     default: "НЕ ОПЛАЧЕНО",
   },
 }, { timestamps: true });
-invoiceSchema.pre("save", async function (next) {
-  const invoice = this;
-
-  if (!invoice.isNew) return next();
-
-  try {
-    const sequenceDoc = await counterModel.findByIdAndUpdate(
-      { _id: "invoiceNumber" },
-      { $inc: { sequence_value: 1 } },
-      { new: true, upsert: true }
-    );
-    invoice.invoiceNumber = sequenceDoc.sequence_value;
-    next();
-  } catch (err) {
-    next(err);
-  }
-});
 
 module.exports = mongoose.model('Invoice', invoiceSchema);

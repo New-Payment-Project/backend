@@ -146,7 +146,6 @@ const createTransaction = async (req, res) => {
 
     try {
         const course = await Courses.findById(account.course_id);
-
         if (!course) {
             return res.json({
                 jsonrpc: '2.0',
@@ -162,6 +161,47 @@ const createTransaction = async (req, res) => {
                 }
             });
         }
+
+        // const invoiceNumber = account.invoiceNumber
+        // if (!invoiceNumber) {
+        //     return res.json({
+        //         jsonrpc: '2.0',
+        //         id: req.body.id,
+        //         error: {
+        //             code: -31050,
+        //             message: {
+        //                 ru: 'Номер счета отсутствует',
+        //                 uz: 'Hisob raqami mavjud emas',
+        //                 en: 'Invoice number is missing'
+        //             },
+        //             data: 'invoiceNumber'
+        //         }
+        //     });
+        // }
+
+        // const invoice = await Invoice.findOne({ invoiceNumber });
+        // if (!invoice) {
+        //     return res.json({
+        //         jsonrpc: '2.0',
+        //         id: req.body.id,
+        //         error: {
+        //             code: -31050,
+        //             message: {
+        //                 ru: 'Счет не найден',
+        //                 uz: 'Hisob topilmadi',
+        //                 en: 'Invoice not found'
+        //             },
+        //             data: 'invoiceNumber'
+        //         }
+        //     });
+        // }
+
+        // const tgUsername = account.tgUsername
+        // const tg = await Invoice.findOne({ tgUsername });
+
+        // const passport = account.passport
+        // const pt = await Invoice.findOne({ passport })
+
 
         const coursePriceInTiyin = course.price * 100;
 
@@ -180,7 +220,6 @@ const createTransaction = async (req, res) => {
                 }
             });
         }
-
         let transaction = await Orders.findOne({ transactionId: id });
 
         if (transaction) {
@@ -207,7 +246,6 @@ const createTransaction = async (req, res) => {
             status: 'ВЫСТАВЛЕНО',
             paymentType: "Payme"
         });
-
         await transaction.save();
 
         await Invoice.findOneAndUpdate(
@@ -225,7 +263,7 @@ const createTransaction = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error in createTransaction:', error);
+        console.error('Error in createTrans action:', error);
         res.json({
             jsonrpc: '2.0',
             id: req.body.id || null,
