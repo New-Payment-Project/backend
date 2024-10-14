@@ -27,7 +27,7 @@ const createInvoice = async (req, res) => {
             clientName,
             clientAddress,
             clientPhone,
-            status: 'НЕ ОПЛАЧЕНО',
+            status: 'ВЫСТАВЛЕНО',
             tgUsername,
             passport
         });

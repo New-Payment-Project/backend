@@ -4,7 +4,7 @@ const orderSchema = new mongoose.Schema({
   transactionId: {
     type: String,
     unique: true,
-    required: true
+    required: false
   },
   invoiceNumber: {
     type: String,
@@ -12,7 +12,7 @@ const orderSchema = new mongoose.Schema({
   },
   create_time: {
     type: Number,
-    required: true
+    required: false
   },
   perform_time: {
     type: Number
@@ -26,12 +26,12 @@ const orderSchema = new mongoose.Schema({
   },
   amount: {
     type: Number,
-    required: true
+    required: false
   },
   course_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Course',
-    required: true
+    required: false
   },
   clientName: {
     type: String,
