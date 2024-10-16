@@ -3,7 +3,7 @@ const Course = require('../models/courseModel');
 const SECRET_KEY = process.env.CLICK_SECRET_KEY
 const Order = require('../models/orderModel');
 
-exports.preparePayment = async ({ click_trans_id, service_id, click_paydoc_id, merchant_trans_id, amount, action, error, error_note, sign_time, sign_string }) => {
+exports.preparePayment = async ({ click_trans_id, service_id, merchant_trans_id, amount, action, sign_time, sign_string }) => {
     try {
         const course = await Course.findOne({ _id: merchant_trans_id });
 
