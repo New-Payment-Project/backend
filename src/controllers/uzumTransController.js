@@ -1,8 +1,36 @@
+const bcrypt = require('bcryptjs');
+const { Buffer } = require("buffer");
+
 const Order = require("../models/orderModel");
 const Course = require("../models/courseModel");
 const Invoice = require("../models/invoiceModel");
+const User = require("../models/userModel");
 
-const realServiceId = 498614016
+const realServiceId = 498614016;
+
+const loginUzumBank = async function (req, res) {
+  const { login, password } = req.body;
+
+  try {
+    const user = await User.findOne({ login: login });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid login or password" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid login or password" });
+    }
+
+    const credentials = Buffer.from(`${login}:${password}`).toString("base64");
+
+    res.status(200).json({ message: "Authentication successful", token: credentials });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.log(error);
+  }
+};
 
 const checkTransaction = async (req, res) => {
   const { serviceId, timestamp, params } = req.body;
@@ -182,7 +210,6 @@ const createTransaction = async (req, res) => {
       { status: "ВЫСТАВЛЕНО" }
     );
     console.log(newOrder);
-    
 
     res.status(201).json({
       serviceId: serviceId,
@@ -226,7 +253,7 @@ const createTransaction = async (req, res) => {
 const confirmTransaction = async (req, res) => {
   const { serviceId, timestamp, transId, paymentSource } = req.body;
 
-  if ((!serviceId || !timestamp || !transId || !paymentSource)) {
+  if (!serviceId || !timestamp || !transId || !paymentSource) {
     return res.status(400).json({
       status: "FAILED",
       confirmTime: timestamp,
@@ -468,6 +495,7 @@ const checkTransactionStatus = async (req, res) => {
 };
 
 module.exports = {
+  loginUzumBank,
   checkTransaction,
   createTransaction,
   confirmTransaction,
