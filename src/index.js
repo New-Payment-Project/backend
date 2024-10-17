@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const authMiddleware = require('./middlware/auth');
+const limiter = require('./services/requestRateLimiter')
 const uzumAuthMiddleware = require("./middlware/uzumAuthMiddleware")
 const pdfGenerateRoute = require('./routes/pdfGenerateRoute')
 
@@ -26,6 +27,8 @@ dotenv.config();
 
 connectDB();
 const app = express();
+
+app.use(limiter)
 app.use(
   cors({
     origin: [
