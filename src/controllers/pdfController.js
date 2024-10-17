@@ -1,89 +1,85 @@
-const puppeteer = require('puppeteer');
+const PDFDocument = require('pdfkit');
+
+const translateStatus = (status) => {
+  switch (status) {
+    case 'ВЫСТАВЛЕНО':
+      return "JARAYONDA";
+    case 'ОПЛАЧЕНО':
+      return "TO'LANGAN";
+    case 'НЕ ОПЛАЧЕНО':
+      return "TO'LANMAGAN";
+    case 'ОТМЕНЕНО':
+      return "BEKOR QILINGAN";
+    default:
+      return status || 'N/A';
+  }
+};
 
 const generatePDF = async (req, res) => {
   try {
     const { orders } = req.body;
 
-    // Create a simple HTML table structure for Puppeteer
-    const htmlContent = `
-      <html>
-        <head>
-          <style>
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid black; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-          </style>
-        </head>
-        <body>
-          <h1>Order Report</h1>
-          <table>
-            <thead>
-              <tr>
-                <th>Invoice Number</th>
-                <th>Client</th>
-                <th>Course</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Created Date</th>
-                <th>Service</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${orders.map(order => `
-                <tr>
-                  <td>${order.invoiceNumber}</td>
-                  <td>${order.clientName}</td>
-                  <td>${order.course_id?.title || ''}</td>
-                  <td>${order.amount}</td>
-                  <td>${order.status}</td>
-                  <td>${new Date(order.create_time).toLocaleDateString()}</td>
-                  <td>${order.paymentType ? order.paymentType : 'N/A'}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `;
+    const doc = new PDFDocument({ size: 'A4', margin: 50 });
 
-    console.log('HTML Content:', htmlContent);  // Log the HTML content for verification
-
-    // Launch Puppeteer
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: true
+    const chunks = [];
+    doc.on('data', (chunk) => chunks.push(chunk));
+    doc.on('end', () => {
+      const pdfBuffer = Buffer.concat(chunks);
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename=order_${orders[0].invoiceNumber}.pdf`,
+        'Content-Length': pdfBuffer.length,
+      });
+      res.status(200).send(pdfBuffer);
     });
 
-    const page = await browser.newPage();
+    doc.font('Helvetica');
 
-    // Set viewport size
-    await page.setViewport({ width: 1280, height: 800 });
+    doc.fontSize(18).text('Order Details', { align: 'center' });
+    doc.moveDown(1);
 
-    // Set the content of the page
-    await page.setContent(htmlContent);
+    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+    doc.moveDown(1);
 
-    // Generate the PDF
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true
-    });
+    const addKeyValueRow = (key, value) => {
+      doc.fontSize(12).text(`${key}:`, { continued: true });
+      doc.fontSize(12).text(value || 'N/A');
+      doc.moveDown(0.5);
+    };
 
-    await browser.close();
+    const order = orders[0];
 
-    console.log('PDF Buffer Length:', pdfBuffer.length);
+    addKeyValueRow('Invoice Number', `${order.course_id?.prefix || 'U'}${order.invoiceNumber || 'N/A'}`);
+    addKeyValueRow('Client', order.clientName || 'N/A');
+    addKeyValueRow('Course', order.course_id?.title || 'N/A');
+    addKeyValueRow('Created Date', order.create_time
+      ? new Date(order.create_time).toLocaleDateString('en-GB') + ' | ' +
+      new Date(order.create_time).toLocaleTimeString('en-GB', { hour12: false })
+      : 'N/A');
+    addKeyValueRow('Client Phone', order.clientPhone || 'N/A');
+    addKeyValueRow('Client Address', order.clientAddress || 'N/A');
+    addKeyValueRow('Telegram Username', order.tgUsername || 'N/A');
+    addKeyValueRow('Passport', order.passport || 'N/A');
 
-    if (!pdfBuffer || pdfBuffer.length === 0) {
-      console.error('PDF Buffer is empty');
-      return res.status(500).send('Error generating PDF');
-    }
+    doc.moveDown(1);
+    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+    doc.moveDown(1);
 
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename=F00003.pdf`,
-      'Content-Length': pdfBuffer.length
-    });
+    addKeyValueRow('Service', order.paymentType || 'N/A');
 
-    res.status(200).send(pdfBuffer);
+    const translatedStatus = translateStatus(order.status);
+    addKeyValueRow('Status', translatedStatus);
+
+    const isPaid = order.status === 'ОПЛАЧЕНО';
+    doc.fontSize(14).text('Amount:', { continued: true })
+      .text(
+        order.amount
+          ? isPaid
+            ? `${(order.amount / 100).toFixed(2)} ${order.currency || 'UZS'}`
+            : `${order.amount} ${order.currency || 'UZS'}`
+          : 'N/A'
+      );
+    doc.end();
   } catch (err) {
     console.error('Error generating PDF:', err);
     res.status(500).send('Error generating PDF');
