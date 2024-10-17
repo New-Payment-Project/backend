@@ -343,14 +343,6 @@ const performTransaction = async (req, res) => {
         }
 
         if (transaction.state === 2) {
-<<<<<<< HEAD
-            if (transaction.status !== 'ОПЛАЧЕНО') {
-                // transaction.status = 'ОПЛАЧЕНО';
-                await transaction.save();
-            }
-
-=======
->>>>>>> 372cb1d6292261c7a1e38a66661b002178894bd4
             return res.json({
                 jsonrpc: '2.0',
                 id: req.body.id,
