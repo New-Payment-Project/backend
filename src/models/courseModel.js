@@ -17,6 +17,11 @@ const courseSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
+    },
+    prefix: {
+        type: String,
+        required: false,
+        default: "U"
     }
 });
 

@@ -17,7 +17,7 @@ const TransSchema = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        enum: ['pending', 'processing', 'completed', 'failed']
+        enum: ['processing', 'completed', 'failed']
     },
     category: {
         type: String,

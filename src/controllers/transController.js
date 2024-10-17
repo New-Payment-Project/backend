@@ -1,11 +1,9 @@
 const TransactionSchema = require('../models/transactionModel')
 
-// Create a new transaction
 const CreateTransaction = async (req, res) => {
     const { userId, username, amount, status, category } = req.body
 
     try {
-        // Check if all required fields are provided
         if (!userId || !username || !amount || !status || !category) {
             return res.status(400).json({ message: 'All fields are required' })
         }
@@ -29,7 +27,6 @@ const CreateTransaction = async (req, res) => {
     }
 }
 
-// Get all transactions
 const getTransactions = async (req, res) => {
     try {
         const transactions = await TransactionSchema.find()
@@ -40,7 +37,6 @@ const getTransactions = async (req, res) => {
     }
 }
 
-// Get a single transaction by ID
 const getTransactionById = async (req, res) => {
     const { id } = req.params
 

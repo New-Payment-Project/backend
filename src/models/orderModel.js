@@ -3,17 +3,15 @@ const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema({
   transactionId: {
     type: String,
-    unique: true,
-    required: true
+    required: false
   },
   invoiceNumber: {
     type: String,
-    unique: true,
     required: false
   },
   create_time: {
     type: Number,
-    required: true
+    required: false
   },
   perform_time: {
     type: Number
@@ -23,16 +21,20 @@ const orderSchema = new mongoose.Schema({
   },
   state: {
     type: Number,
-    required: true
+    required: false
   },
   amount: {
     type: Number,
-    required: true
+    required: false
   },
   course_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Course',
-    required: true
+    required: false
+  },
+  courseTitle: {
+    type: String,
+    required: false
   },
   clientName: {
     type: String,
@@ -46,13 +48,25 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: false
   },
+  tgUsername: {
+    type: String,
+    required: false
+  },
+  passport: {
+    type: String,
+    required: false
+  },
   reason: {
     type: Number
   },
   status: {
     type: String,
-    enum: ['НЕ ОПЛАЧЕНО', 'ОПЛАЧЕНО', 'ОТМЕНЕНО'],
+    enum: ['НЕ ОПЛАЧЕНО', 'ВЫСТАВЛЕНО', 'ОПЛАЧЕНО', 'ОТМЕНЕНО'],
     default: 'НЕ ОПЛАЧЕНО'
+  },
+  paymentType: {
+    type: String,
+    enum: ["Payme", "Click", "Uzum"]
   }
 });
 
