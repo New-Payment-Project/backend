@@ -3,9 +3,9 @@ const connectDB = require("./config/database");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const authMiddleware = require('./middlware/auth');
-const uzumAuthMiddleware = require("./middlware/uzumAuthMiddleware")
-const pdfGenerateRoute = require('./routes/pdfGenerateRoute')
+const authMiddleware = require("./middlware/auth");
+const uzumAuthMiddleware = require("./middlware/uzumAuthMiddleware");
+const pdfGenerateRoute = require("./routes/pdfGenerateRoute");
 
 const {
   clickCompleteRoutes,
@@ -47,7 +47,7 @@ app.use(
       // Test
       "http://localhost:3000",
       "http://localhost:3001",
-      "https://norbekovgroup.vercel.app", 
+      "https://norbekovgroup.vercel.app",
     ],
     methods: "GET, POST, PUT, DELETE, PATCH",
     allowedHeaders: "Content-Type, Authorization",
@@ -67,7 +67,7 @@ app.use("/api/v1/compare", compareRoutes);
 app.use("/api/v1", invoiceOrdersRoutes);
 app.use("/api/v1/click", clickPrepRoutes);
 app.use("/api/v1/click", clickCompleteRoutes);
-app.use('/api/v1', pdfGenerateRoute)
+app.use("/api/v1", pdfGenerateRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

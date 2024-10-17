@@ -1,17 +1,42 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require("puppeteer");
 
 const generatePDF = async (req, res) => {
+  let browser;
   try {
     const { orders } = req.body;
 
-    // Create a simple HTML table structure for Puppeteer
+    if (!orders || orders.length === 0) {
+      return res.status(400).send("No orders provided");
+    }
+
+    // Log orders for debugging
+    console.log("Received orders:", orders);
+
+    // Determine the filename
+    const filename =
+      orders.length === 1
+        ? `${orders[0].invoiceNumber}.pdf`
+        : `order_report_${Date.now()}.pdf`;
+
+    // Generate HTML content
     const htmlContent = `
       <html>
         <head>
           <style>
-            table { width: 100%; border-collapse: collapse; }
-            th, td { border: 1px solid black; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { text-align: center; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td {
+              border: 1px solid #ddd;
+              padding: 8px;
+              text-align: left;
+              font-size: 12px;
+            }
+            th {
+              background-color: #f2f2f2;
+              font-weight: bold;
+            }
+            tr:nth-child(even) { background-color: #f9f9f9; }
           </style>
         </head>
         <body>
@@ -29,64 +54,80 @@ const generatePDF = async (req, res) => {
               </tr>
             </thead>
             <tbody>
-              ${orders.map(order => `
+              ${orders
+                .map(
+                  (order) => `
                 <tr>
-                  <td>${order.invoiceNumber}</td>
-                  <td>${order.clientName}</td>
-                  <td>${order.course_id?.title || ''}</td>
-                  <td>${order.amount}</td>
-                  <td>${order.status}</td>
-                  <td>${new Date(order.create_time).toLocaleDateString()}</td>
-                  <td>${order.paymentType ? order.paymentType : 'N/A'}</td>
+                  <td>${order.invoiceNumber || "N/A"}</td>
+                  <td>${order.clientName || "N/A"}</td>
+                  <td>${order.course_id?.title || "N/A"}</td>
+                  <td>${
+                    order.amount
+                      ? `${(order.amount / 100).toFixed(2)} ${
+                          order.currency || "UZS"
+                        }`
+                      : "N/A"
+                  }</td>
+                  <td>${order.status || "N/A"}</td>
+                  <td>${
+                    order.create_time
+                      ? new Date(order.create_time).toLocaleDateString()
+                      : "N/A"
+                  }</td>
+                  <td>${order.paymentType || "N/A"}</td>
                 </tr>
-              `).join('')}
+              `
+                )
+                .join("")}
             </tbody>
           </table>
         </body>
       </html>
     `;
 
-    console.log('HTML Content:', htmlContent);  // Log the HTML content for verification
-
     // Launch Puppeteer
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless: true
+    browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      headless: true,
     });
 
     const page = await browser.newPage();
 
-    // Set viewport size
-    await page.setViewport({ width: 1280, height: 800 });
+    // Set page content
+    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
 
-    // Set the content of the page
-    await page.setContent(htmlContent);
-
-    // Generate the PDF
+    // Generate PDF
     const pdfBuffer = await page.pdf({
-      format: 'A4',
-      printBackground: true
+      format: "A4",
+      printBackground: true,
     });
-
-    await browser.close();
-
-    console.log('PDF Buffer Length:', pdfBuffer.length);
 
     if (!pdfBuffer || pdfBuffer.length === 0) {
-      console.error('PDF Buffer is empty');
-      return res.status(500).send('Error generating PDF');
+      throw new Error("PDF Buffer is empty");
     }
 
+    // Close the browser
+    await browser.close();
+
+    // Set response headers
     res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename=F00003.pdf`,
-      'Content-Length': pdfBuffer.length
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename=${filename}`,
+      "Content-Length": pdfBuffer.length,
     });
 
+    // Send the PDF
     res.status(200).send(pdfBuffer);
   } catch (err) {
-    console.error('Error generating PDF:', err);
-    res.status(500).send('Error generating PDF');
+    console.error("Error generating PDF:", err);
+    if (browser) {
+      await browser.close();
+    }
+    res.status(500).json({
+      error: "Error generating PDF",
+      message: err.message,
+      stack: err.stack,
+    });
   }
 };
 
