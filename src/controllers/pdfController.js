@@ -79,7 +79,6 @@ const generatePDF = async (req, res) => {
             : `${order.amount} ${order.currency || 'UZS'}`
           : 'N/A'
       );
-
     doc.end();
   } catch (err) {
     console.error('Error generating PDF:', err);
