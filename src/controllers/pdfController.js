@@ -1,133 +1,89 @@
-const puppeteer = require("puppeteer");
+const PDFDocument = require('pdfkit');
+
+const translateStatus = (status) => {
+  switch (status) {
+    case 'ВЫСТАВЛЕНО':
+      return "JARAYONDA";
+    case 'ОПЛАЧЕНО':
+      return "TO'LANGAN";
+    case 'НЕ ОПЛАЧЕНО':
+      return "TO'LANMAGAN";
+    case 'ОТМЕНЕНО':
+      return "BEKOR QILINGAN";
+    default:
+      return status || 'N/A';
+  }
+};
 
 const generatePDF = async (req, res) => {
-  let browser;
   try {
     const { orders } = req.body;
 
-    if (!orders || orders.length === 0) {
-      return res.status(400).send("No orders provided");
-    }
+    const doc = new PDFDocument({ size: 'A4', margin: 50 });
 
-    // Log orders for debugging
-    console.log("Received orders:", orders);
-
-    // Determine the filename
-    const filename =
-      orders.length === 1
-        ? `${orders[0].invoiceNumber}.pdf`
-        : `order_report_${Date.now()}.pdf`;
-
-    // Generate HTML content
-    const htmlContent = `
-      <html>
-        <head>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            h1 { text-align: center; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td {
-              border: 1px solid #ddd;
-              padding: 8px;
-              text-align: left;
-              font-size: 12px;
-            }
-            th {
-              background-color: #f2f2f2;
-              font-weight: bold;
-            }
-            tr:nth-child(even) { background-color: #f9f9f9; }
-          </style>
-        </head>
-        <body>
-          <h1>Order Report</h1>
-          <table>
-            <thead>
-              <tr>
-                <th>Invoice Number</th>
-                <th>Client</th>
-                <th>Course</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Created Date</th>
-                <th>Service</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${orders
-                .map(
-                  (order) => `
-                <tr>
-                  <td>${order.invoiceNumber || "N/A"}</td>
-                  <td>${order.clientName || "N/A"}</td>
-                  <td>${order.course_id?.title || "N/A"}</td>
-                  <td>${
-                    order.amount
-                      ? `${(order.amount / 100).toFixed(2)} ${
-                          order.currency || "UZS"
-                        }`
-                      : "N/A"
-                  }</td>
-                  <td>${order.status || "N/A"}</td>
-                  <td>${
-                    order.create_time
-                      ? new Date(order.create_time).toLocaleDateString()
-                      : "N/A"
-                  }</td>
-                  <td>${order.paymentType || "N/A"}</td>
-                </tr>
-              `
-                )
-                .join("")}
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `;
-
-    // Launch Puppeteer
-    browser = await puppeteer.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      headless: true,
+    const chunks = [];
+    doc.on('data', (chunk) => chunks.push(chunk));
+    doc.on('end', () => {
+      const pdfBuffer = Buffer.concat(chunks);
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename=order_${orders[0].invoiceNumber}.pdf`,
+        'Content-Length': pdfBuffer.length,
+      });
+      res.status(200).send(pdfBuffer);
     });
 
-    const page = await browser.newPage();
+    doc.font('Helvetica');
 
-    // Set page content
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+    doc.fontSize(18).text('Order Details', { align: 'center' });
+    doc.moveDown(1);
 
-    // Generate PDF
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-    });
+    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+    doc.moveDown(1);
 
-    if (!pdfBuffer || pdfBuffer.length === 0) {
-      throw new Error("PDF Buffer is empty");
-    }
+    const addKeyValueRow = (key, value) => {
+      doc.fontSize(12).text(`${key}:`, { continued: true });
+      doc.fontSize(12).text(value || 'N/A');
+      doc.moveDown(0.5);
+    };
 
-    // Close the browser
-    await browser.close();
+    const order = orders[0];
 
-    // Set response headers
-    res.set({
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename=${filename}`,
-      "Content-Length": pdfBuffer.length,
-    });
+    addKeyValueRow('Invoice Number', `${order.course_id?.prefix || 'U'}${order.invoiceNumber || 'N/A'}`);
+    addKeyValueRow('Client', order.clientName || 'N/A');
+    addKeyValueRow('Course', order.course_id?.title || 'N/A');
+    addKeyValueRow('Created Date', order.create_time
+      ? new Date(order.create_time).toLocaleDateString('en-GB') + ' | ' +
+      new Date(order.create_time).toLocaleTimeString('en-GB', { hour12: false })
+      : 'N/A');
+    addKeyValueRow('Client Phone', order.clientPhone || 'N/A');
+    addKeyValueRow('Client Address', order.clientAddress || 'N/A');
+    addKeyValueRow('Telegram Username', order.tgUsername || 'N/A');
+    addKeyValueRow('Passport', order.passport || 'N/A');
 
-    // Send the PDF
-    res.status(200).send(pdfBuffer);
+    doc.moveDown(1);
+    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+    doc.moveDown(1);
+
+    addKeyValueRow('Service', order.paymentType || 'N/A');
+
+    const translatedStatus = translateStatus(order.status);
+    addKeyValueRow('Status', translatedStatus);
+
+    const isPaid = order.status === 'ОПЛАЧЕНО';
+    doc.fontSize(14).text('Amount:', { continued: true })
+      .text(
+        order.amount
+          ? isPaid
+            ? `${(order.amount / 100).toFixed(2)} ${order.currency || 'UZS'}`
+            : `${order.amount} ${order.currency || 'UZS'}`
+          : 'N/A'
+      );
+
+    doc.end();
   } catch (err) {
-    console.error("Error generating PDF:", err);
-    if (browser) {
-      await browser.close();
-    }
-    res.status(500).json({
-      error: "Error generating PDF",
-      message: err.message,
-      stack: err.stack,
-    });
+    console.error('Error generating PDF:', err);
+    res.status(500).send('Error generating PDF');
   }
 };
 
