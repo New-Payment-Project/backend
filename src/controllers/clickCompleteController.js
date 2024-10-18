@@ -17,7 +17,7 @@ exports.completePayment = async (req, res) => {
       error_note,
       sign_time,
       sign_string,
-      param3,
+      param2,
     } = req.body;
 
     const calculatedSign = crypto

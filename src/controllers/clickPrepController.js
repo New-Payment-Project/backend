@@ -15,7 +15,7 @@ exports.preparePayment = async (req, res) => {
     action,
     sign_time,
     sign_string,
-    param3,
+    param2,
   } = req.body;
 
   try {
@@ -30,14 +30,14 @@ exports.preparePayment = async (req, res) => {
       action === undefined ||
       sign_time === undefined ||
       sign_string === undefined ||
-      param3 === undefined
+      param2 === undefined
     ) {
       return res
         .status(400)
         .json({ error: -1, error_note: "Missing required fields" });
     }
 
-    const course = await Course.findOne({ _id: param3 });
+    const course = await Course.findOne({ _id: param2 });
     if (!course) {
       return res
         .status(400)
@@ -59,7 +59,7 @@ exports.preparePayment = async (req, res) => {
         .json({ error: -9, error_note: "Amount is incorrect" });
     }
 
-    if (order.course_id.toString() !== param3) {
+    if (order.course_id.toString() !== param2) {
       return res
         .status(400)
         .json({ error: -9, error_note: "Additional param is incorrect" });
