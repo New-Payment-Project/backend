@@ -4,7 +4,9 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const authMiddleware = require('./middlware/auth');
+const limiter = require('./services/requestRateLimiter')
 const uzumAuthMiddleware = require("./middlware/uzumAuthMiddleware")
+const pdfGenerateRoute = require('./routes/pdfGenerateRoute')
 
 const {
   clickCompleteRoutes,
@@ -24,8 +26,9 @@ const {
 dotenv.config();
 
 connectDB();
-
 const app = express();
+
+app.use(limiter)
 app.use(
   cors({
     origin: [
@@ -35,7 +38,7 @@ app.use(
       "https://forum.norbekovgroup.uz",
       "http://174.138.43.233:3000",
       "http://174.138.43.233:3001",
-      
+
       // Banks
       "https://test.paycom.uz",
       "https://217.29.119.130",
@@ -67,6 +70,7 @@ app.use("/api/v1/compare", compareRoutes);
 app.use("/api/v1", invoiceOrdersRoutes);
 app.use("/api/v1/click", clickPrepRoutes);
 app.use("/api/v1/click", clickCompleteRoutes);
+app.use("/api/v1", pdfGenerateRoute);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

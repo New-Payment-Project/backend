@@ -357,7 +357,7 @@ const performTransaction = async (req, res) => {
 
         transaction.state = 2;
         transaction.perform_time = Date.now();
-        transaction.status = 'ОПЛАЧЕНО';
+        // transaction.status = 'ОПЛАЧЕНО';
         await transaction.save();
 
         await Orders.findOneAndUpdate(
