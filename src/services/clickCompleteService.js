@@ -11,9 +11,8 @@ exports.calculateSign = ({
     action,
     sign_time,
 }) => {
-
     const hashString = `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${merchant_prepare_id}${amount}${action}${sign_time}`;
-    return (crypto.createHash('md5').update(hashString).digest('hex'))
+    return crypto.createHash('md5').update(hashString).digest('hex');
 };
 
 exports.completePayment = async ({
@@ -22,10 +21,12 @@ exports.completePayment = async ({
     merchant_trans_id,
     merchant_prepare_id,
     amount,
-    error
+    error,
 }) => {
     try {
-        // Проверка существования транзакции
+        // Assuming 'merchant_trans_id' is composed of 'prefix + invoiceNumber'
+
+        // Ensure you are querying by invoiceNumber, not by _id
         const course = await Course.findOne({ _id: merchant_trans_id });
 
         if (!course) {
@@ -36,21 +37,29 @@ exports.completePayment = async ({
             return { error: -2, error_note: 'Invalid amount' };
         }
 
-        // Обработка ошибки, если таковая имеется
+        // Handle payment errors if any
         if (error !== 0) {
             return { error, error_note: 'Payment error occurred' };
         }
 
-        // Логика успешного завершения транзакции
-        course.status = 'completed'; // Пример: обновление статуса
-        await course.save();
+        // If successful, update the status and payment type using findOneAndUpdate
+        const updatedCourse = await Course.findOneAndUpdate(
+            { invoiceNumber },
+            {
+                $set: {
+                    status: 'ОПЛАЧЕНО',   // Update to "PAID"
+                    paymentType: 'Click',  // Set payment type to "Click"
+                },
+            },
+            { new: true } // Return the updated document
+        );
 
         return {
             click_trans_id,
             merchant_trans_id,
-            merchant_confirm_id: course._id,
+            merchant_confirm_id: updatedCourse._id,
             error: 0,
-            error_note: 'Payment successfully completed'
+            error_note: 'Payment successfully completed',
         };
     } catch (error) {
         console.error('Error in completePayment service:', error);
