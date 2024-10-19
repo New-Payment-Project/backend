@@ -18,7 +18,7 @@ const {
   counterRoutes,
   paymentRoutes,
   orderRoutes,
-  authRoutes,
+  authRoutes, 
   transactionRoutes,
   uzumBankRoutes,
 } = require("./config/allRoutes");
