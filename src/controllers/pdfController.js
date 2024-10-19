@@ -11,7 +11,6 @@ const generateContractPDF = async (req, res) => {
     }
 
     const doc = new PDFDocument({ size: 'A4', margin: 50 });
-
     const chunks = [];
     doc.on('data', (chunk) => chunks.push(chunk));
     doc.on('end', () => {
