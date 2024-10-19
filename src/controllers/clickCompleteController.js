@@ -27,8 +27,6 @@ exports.completePayment = async (req, res) => {
       )
       .digest("hex");
 
-    console.log(`${calculatedSign}`);
-
     // Validate the sign string
     if (!sign_string || calculatedSign !== sign_string) {
       return res.status(400).json({
@@ -61,7 +59,7 @@ exports.completePayment = async (req, res) => {
         click_trans_id,
         merchant_trans_id,
         merchant_confirm_id: merchant_prepare_id, // Send prepare_id as confirm_id
-        error: -4,
+        error: 0,
         error_note: "Payment was already performed",
       });
     }

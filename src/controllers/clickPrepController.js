@@ -21,17 +21,17 @@ exports.preparePayment = async (req, res) => {
   try {
     // Check for required fields
     if (
-      click_trans_id === undefined ||
-      service_id === undefined ||
-      click_paydoc_id === undefined ||
-      error === undefined ||
-      error_note === undefined ||
-      merchant_trans_id === undefined ||
-      amount === undefined ||
-      action === undefined ||
-      sign_time === undefined ||
-      sign_string === undefined ||
-      param2 === undefined
+      !click_trans_id ||
+      !service_id ||
+      !click_paydoc_id ||
+      !error ||
+      !error_note ||
+      !merchant_trans_id ||
+      !amount ||
+      !action ||
+      !sign_time ||
+      !sign_string ||
+      !param2
     ) {
       return res
         .status(400)
@@ -76,8 +76,6 @@ exports.preparePayment = async (req, res) => {
       )
       .digest("hex");
 
-    console.log(expectedSignString);
-
     // Validate the sign string
     if (!sign_string || sign_string !== expectedSignString) {
       return res
@@ -86,7 +84,7 @@ exports.preparePayment = async (req, res) => {
     }
 
     // Use the order._id as the merchant_prepare_id
-    const merchant_prepare_id = order._id;
+    const merchant_prepare_id = order._id.toString(); // Ensure it's a string
 
     return res.status(200).json({
       result: {
