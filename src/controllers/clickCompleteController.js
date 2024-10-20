@@ -17,7 +17,7 @@ exports.completePayment = async (req, res) => {
       sign_time,
       sign_string,
       param2, // The course ID
-    } = req.body;
+    } = req.body._postData;
 
     // Calculate the expected sign string
     const calculatedSign = crypto
@@ -26,6 +26,8 @@ exports.completePayment = async (req, res) => {
         `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${amount}${action}${sign_time}`
       )
       .digest("hex");
+
+    console.log(`${calculatedSign}`);
 
     // Validate the sign string
     if (!sign_string || calculatedSign !== sign_string) {
@@ -59,7 +61,7 @@ exports.completePayment = async (req, res) => {
         click_trans_id,
         merchant_trans_id,
         merchant_confirm_id: merchant_prepare_id, // Send prepare_id as confirm_id
-        error: 0,
+        error: -4,
         error_note: "Payment was already performed",
       });
     }
