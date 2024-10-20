@@ -4,6 +4,8 @@ const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.completePayment = async (req, res) => {
   try {
+  const { _postData } = req.body.Request
+
     const {
       click_trans_id,
       service_id,
@@ -17,7 +19,7 @@ exports.completePayment = async (req, res) => {
       sign_time,
       sign_string,
       param2, // The course ID
-    } = req.body;
+    } = _postData;
 
     // Calculate the expected sign string
     const calculatedSign = crypto
