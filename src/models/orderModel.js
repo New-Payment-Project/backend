@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema({
   transactionId: {
     type: String,
-    unique: true,
     required: false
   },
   invoiceNumber: {
@@ -31,6 +30,10 @@ const orderSchema = new mongoose.Schema({
   course_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Course',
+    required: false
+  },
+  courseTitle: {
+    type: String,
     required: false
   },
   clientName: {

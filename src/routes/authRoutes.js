@@ -1,16 +1,13 @@
-const express = require('express');
-const { registerUser, loginUser } = require('../controllers/authController');
+const express = require("express");
+const { registerUser, loginUser } = require("../controllers/authController");
+const { loginUzumBank } = require("../controllers/uzumTransController");
 
 const router = express.Router();
 
-// @route   POST /api/auth/register
-// @desc    Register a new user
-// @access  Public
-router.post('/register', registerUser);
+router.post("/register", registerUser);
 
-// @route   POST /api/auth/login
-// @desc    Login user
-// @access  Public
-router.post('/login', loginUser);
+router.post("/login", loginUser);
+
+router.post("/uzum-bank/login", loginUzumBank);
 
 module.exports = router;

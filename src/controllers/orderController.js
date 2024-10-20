@@ -39,12 +39,12 @@ const createOrder = async (req, res) => {
       clientPhone,
       clientAddress,
       invoiceNumber,
-      status
+      status,
+      passport,
+      tgUsername,
+      courseTitle,
+      prefix
     } = req.body;
-
-    if (!transactionId || !create_time || !state || !amount || !course_id || !user_id) {
-      return res.status(400).json({ message: "All required fields must be provided" });
-    }
 
     const newOrder = new Order({
       transactionId,
@@ -59,6 +59,10 @@ const createOrder = async (req, res) => {
       clientName,
       clientPhone,
       clientAddress,
+      passport,
+      tgUsername,
+      prefix,
+      courseTitle,
       reason: null,
       status: status || 'НЕ ОПЛАЧЕНО'
     });

@@ -6,10 +6,10 @@ const orderRoutes = require("../routes/orderRoutes");
 const authRoutes = require("../routes/authRoutes");
 const transactionRoutes = require("../routes/transRoutes");
 const compareRoutes = require("../routes/compareRoutes");
-const invoiceOrdersRoutes = require("../routes/invoiceOrdersRoutes")
-const uzumBankRoutes = require("../routes/uzumBankRoutes")
-const clickPrepRoutes = require("../routes/clickPrepRoutes")
-const clickCompleteRoutes = require("../routes/clickCompleteRoute")
+const invoiceOrdersRoutes = require("../routes/invoiceOrdersRoutes");
+const uzumBankRoutes = require("../routes/uzumBankRoutes");
+const clickPrepRoutes = require("../routes/clickPrepRoutes");
+const clickCompleteRoutes = require("../routes/clickCompleteRoute");
 
 module.exports = {
   clickCompleteRoutes,
@@ -23,5 +23,5 @@ module.exports = {
   orderRoutes,
   authRoutes,
   transactionRoutes,
-  uzumBankRoutes
+  uzumBankRoutes,
 };

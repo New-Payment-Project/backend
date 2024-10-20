@@ -21,7 +21,7 @@ const invoiceSchema = new mongoose.Schema({
   },
   tgUsername: {
     type: String,
-    required: false
+    required: true
   },
   passport: {
     type: String,
