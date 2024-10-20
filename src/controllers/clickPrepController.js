@@ -4,6 +4,7 @@ const Order = require("../models/orderModel");
 const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.preparePayment = async (req, res) => {
+  const { _postData } = req.body.Request
   const {
     click_trans_id,
     service_id,
@@ -16,7 +17,7 @@ exports.preparePayment = async (req, res) => {
     sign_time,
     sign_string,
     param2, // The course ID
-  } = req.body;
+  } = _postData;
 
   try {
     // Check for required fields
