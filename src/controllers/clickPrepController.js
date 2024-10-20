@@ -16,7 +16,7 @@ exports.preparePayment = async (req, res) => {
     sign_time,
     sign_string,
     param2, // The course ID
-  } = req.body._postData;
+  } = req.body;
 
   try {
     // Check for required fields

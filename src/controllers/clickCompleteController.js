@@ -17,7 +17,7 @@ exports.completePayment = async (req, res) => {
       sign_time,
       sign_string,
       param2, // The course ID
-    } = req.body._postData;
+    } = req.body;
 
     // Calculate the expected sign string
     const calculatedSign = crypto
