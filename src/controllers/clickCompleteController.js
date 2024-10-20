@@ -18,10 +18,9 @@ exports.completePayment = async (req, res) => {
       error_note,
       sign_time,
       sign_string,
-      param2, // The course ID
+      param2,
     } = _postData;
 
-    // Calculate the expected sign string
     const calculatedSign = crypto
       .createHash("md5")
       .update(
@@ -31,7 +30,6 @@ exports.completePayment = async (req, res) => {
 
     console.log(`${calculatedSign}`);
 
-    // Validate the sign string
     if (!sign_string || calculatedSign !== sign_string) {
       return res.status(400).json({
         error: -1,
@@ -39,17 +37,14 @@ exports.completePayment = async (req, res) => {
       });
     }
 
-    // Find the order by merchant_trans_id (order ID)
     const order = await Order.findOne({
       invoiceNumber: merchant_trans_id,
     });
 
-    // If no order is found
     if (!order) {
       return res.status(400).json({ error: -2, error_note: "Order not found" });
     }
 
-    // Validate the amount
     if (amount !== order.amount) {
       return res.status(400).json({
         error: -9,
@@ -57,18 +52,16 @@ exports.completePayment = async (req, res) => {
       });
     }
 
-    // If the payment is already completed
     if (order.status === "ОПЛАЧЕНО" && order.paymentType === "Click") {
       return res.status(200).json({
         click_trans_id,
         merchant_trans_id,
-        merchant_confirm_id: merchant_prepare_id, // Send prepare_id as confirm_id
+        merchant_confirm_id: merchant_prepare_id,
         error: -4,
         error_note: "Payment was already performed",
       });
     }
 
-    // Check if the prepare ID matches the order._id
     if (merchant_prepare_id !== order._id.toString()) {
       return res.status(400).json({
         error: -5,
@@ -76,9 +69,7 @@ exports.completePayment = async (req, res) => {
       });
     }
 
-    // If no error, process the payment
     if (error === 0) {
-      // Update order status to PAID
       await Order.findOneAndUpdate(
         { invoiceNumber: merchant_trans_id },
         {
@@ -92,13 +83,12 @@ exports.completePayment = async (req, res) => {
       return res.status(200).json({
         click_trans_id,
         merchant_trans_id,
-        merchant_confirm_id: merchant_prepare_id, // Send prepare_id as confirm_id
+        merchant_confirm_id: merchant_prepare_id,
         error: 0,
         error_note: "Success",
       });
     }
 
-    // If there are other errors, handle accordingly
     return res.status(400).json({
       click_trans_id,
       merchant_trans_id,
