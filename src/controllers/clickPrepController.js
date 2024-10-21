@@ -4,28 +4,27 @@ const Order = require("../models/orderModel");
 const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.preparePayment = async (req, res) => {
-  const { _postData } = req.body.Request
+  console.log('Received body:', req.body);
+
   const {
     click_trans_id,
     service_id,
     click_paydoc_id,
-    error,
-    error_note,
     merchant_trans_id,
     amount,
     action,
     sign_time,
     sign_string,
-    param2,
-  } = _postData;
+    error,
+    error_note,
+    param2
+  } = req.body.Request;
 
   try {
     if (
       click_trans_id === undefined ||
       service_id === undefined ||
       click_paydoc_id === undefined ||
-      error === undefined ||
-      error_note === undefined ||
       merchant_trans_id === undefined ||
       amount === undefined ||
       action === undefined ||
@@ -33,35 +32,41 @@ exports.preparePayment = async (req, res) => {
       sign_string === undefined ||
       param2 === undefined
     ) {
-      return res
-        .status(400)
-        .json({ error: -1, error_note: "Missing required fields" });
+      console.log('Missing required fields');
+      return res.status(400).json({
+        error: -1,
+        error_note: "Missing required fields"
+      });
     }
 
     const course = await Course.findOne({ _id: param2 });
     if (!course) {
-      return res
-        .status(400)
-        .json({ error: -9, error_note: "Additional param is incorrect" });
+      return res.status(400).json({
+        error: -9,
+        error_note: "Course not found"
+      });
     }
 
     const order = await Order.findOne({ invoiceNumber: merchant_trans_id });
-    if (!order || order.invoiceNumber !== merchant_trans_id) {
-      return res
-        .status(400)
-        .json({ error: -5, error_note: "Merchant trans id is incorrect" });
+    if (!order) {
+      return res.status(400).json({
+        error: -5,
+        error_note: "Order not found"
+      });
     }
 
     if (order.amount !== amount) {
-      return res
-        .status(400)
-        .json({ error: -9, error_note: "Amount is incorrect" });
+      return res.status(400).json({
+        error: -9,
+        error_note: "Incorrect amount"
+      });
     }
 
     if (order.course_id.toString() !== param2) {
-      return res
-        .status(400)
-        .json({ error: -9, error_note: "Additional param is incorrect" });
+      return res.status(400).json({
+        error: -9,
+        error_note: "Incorrect course"
+      });
     }
 
     const expectedSignString = crypto
@@ -71,16 +76,17 @@ exports.preparePayment = async (req, res) => {
       )
       .digest("hex");
 
-    console.log(expectedSignString);
-
-    if (!sign_string || sign_string !== expectedSignString) {
-      return res
-        .status(400)
-        .json({ error: -1, error_note: "Invalid sign string" });
+    if (sign_string !== expectedSignString) {
+      console.log('Invalid sign string');
+      return res.status(400).json({
+        error: -1,
+        error_note: "Invalid sign string"
+      });
     }
 
     const merchant_prepare_id = order._id;
 
+    // Отправляем успешный ответ
     return res.status(200).json({
       result: {
         click_trans_id,
@@ -90,8 +96,12 @@ exports.preparePayment = async (req, res) => {
         error_note: "Success",
       },
     });
+
   } catch (error) {
-    console.error("Error in preparePayment controller:", error);
-    return res.status(500).json({ error: -3, error_note: "Server error" });
+    console.error("Error in preparePayment:", error);
+    return res.status(500).json({
+      error: -3,
+      error_note: "Server error"
+    });
   }
 };

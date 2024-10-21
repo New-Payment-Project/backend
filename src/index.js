@@ -18,9 +18,10 @@ const {
   counterRoutes,
   paymentRoutes,
   orderRoutes,
-  authRoutes, 
+  authRoutes,
   transactionRoutes,
   uzumBankRoutes,
+  generateClickUrl
 } = require("./config/allRoutes");
 
 dotenv.config();
@@ -59,6 +60,7 @@ app.use(
 );
 app.use(bodyParser.json());
 app.use("/", paymentRoutes);
+app.use("/", generateClickUrl);
 app.use("/api/v1/uzum-bank", uzumAuthMiddleware, uzumBankRoutes);
 app.use("/api/v1", courseRoutes);
 app.use("/api/v1", invoiceRoutes);

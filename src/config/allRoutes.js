@@ -10,6 +10,7 @@ const invoiceOrdersRoutes = require("../routes/invoiceOrdersRoutes");
 const uzumBankRoutes = require("../routes/uzumBankRoutes");
 const clickPrepRoutes = require("../routes/clickPrepRoutes");
 const clickCompleteRoutes = require("../routes/clickCompleteRoute");
+const generateClickUrl = require('../routes/generateClickUrl')
 
 module.exports = {
   clickCompleteRoutes,
@@ -24,4 +25,5 @@ module.exports = {
   authRoutes,
   transactionRoutes,
   uzumBankRoutes,
+  generateClickUrl
 };
