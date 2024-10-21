@@ -6,7 +6,7 @@ const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 exports.preparePayment = async (req, res) => {
   console.log("Received body:", req.body);
 
-  const _postData = req.body?.Request?._postData; // Safely accessing _postData
+  const _postData = req.body?.Request?._postData;
   if (!_postData) {
     console.log("Missing required fields in _postData");
     return res.status(400).json({
@@ -27,23 +27,46 @@ exports.preparePayment = async (req, res) => {
     error,
     error_note,
     param2
-  } = req.body.Request._postData;
+  } = _postData;
+
+  console.log('Parsed fields:', {
+    click_trans_id,
+    service_id,
+    click_paydoc_id,
+    merchant_trans_id,
+    amount,
+    action,
+    sign_time,
+    sign_string,
+    error,
+    error_note,
+    param2
+  });
+
   try {
     if (
-      click_trans_id === undefined ||
-      service_id === undefined ||
-      click_paydoc_id === undefined ||
-      merchant_trans_id === undefined ||
-      amount === undefined ||
-      action === undefined ||
-      sign_time === undefined ||
-      sign_string === undefined ||
-      param2 === undefined
+      !click_trans_id ||
+      !service_id ||
+      !click_paydoc_id ||
+      !merchant_trans_id ||
+      !amount ||
+      !action ||
+      !sign_time ||
+      !sign_string ||
+      !param2
     ) {
       console.log("Missing required fields");
       return res.status(400).json({
         error: -1,
         error_note: "Missing required fields",
+      });
+    }
+
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount)) {
+      return res.status(400).json({
+        error: -9,
+        error_note: "Invalid amount format",
       });
     }
 
@@ -63,7 +86,8 @@ exports.preparePayment = async (req, res) => {
       });
     }
 
-    if (order.amount !== amount) {
+    if (order.amount !== parsedAmount) {
+      console.log(`Expected amount: ${order.amount}, but received: ${parsedAmount}`);
       return res.status(400).json({
         error: -9,
         error_note: "Incorrect amount",
@@ -80,12 +104,12 @@ exports.preparePayment = async (req, res) => {
     const expectedSignString = crypto
       .createHash("md5")
       .update(
-        `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${amount}${action}${sign_time}`
+        `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${parsedAmount}${action}${sign_time}`
       )
       .digest("hex");
 
     if (sign_string !== expectedSignString) {
-      console.log("Invalid sign string");
+      console.log(`Invalid sign string. Expected: ${expectedSignString}, but received: ${sign_string}`);
       return res.status(400).json({
         error: -1,
         error_note: "Invalid sign string",
@@ -93,8 +117,6 @@ exports.preparePayment = async (req, res) => {
     }
 
     const merchant_prepare_id = order._id;
-
-    // Отправляем успешный ответ
     return res.status(200).json({
       result: {
         click_trans_id,
@@ -104,6 +126,7 @@ exports.preparePayment = async (req, res) => {
         error_note: "Success",
       },
     });
+
   } catch (error) {
     console.error("Error in preparePayment:", error);
     return res.status(500).json({
