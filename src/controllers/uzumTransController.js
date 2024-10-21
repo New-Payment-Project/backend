@@ -8,6 +8,16 @@ const User = require("../models/userModel");
 
 const realServiceId = 498614016;
 
+const getUsers = async(req,res) =>{
+  try {
+    const users = await User.find({});
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.log(error);
+  }
+}
+
 const loginUzumBank = async function (req, res) {
   const { login, password } = req.body;
 
@@ -155,7 +165,7 @@ const createTransaction = async (req, res) => {
       status: "FAILED",
       transTime: Date.now(),
       errorCode: "10007",
-    });
+    }); 
   }
 
   try {
@@ -501,4 +511,5 @@ module.exports = {
   confirmTransaction,
   reverseTransaction,
   checkTransactionStatus,
+  getUsers
 };
