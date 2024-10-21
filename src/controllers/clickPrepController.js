@@ -4,7 +4,16 @@ const Order = require("../models/orderModel");
 const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.preparePayment = async (req, res) => {
-  console.log('Received body:', req.body);
+  console.log("Received body:", req.body);
+
+  const _postData = req.body?.Request?._postData; // Safely accessing _postData
+  if (!_postData) {
+    console.log("Missing required fields in _postData");
+    return res.status(400).json({
+      error: -1,
+      error_note: "Missing required fields in _postData",
+    });
+  }
 
   const {
     click_trans_id,
@@ -15,10 +24,8 @@ exports.preparePayment = async (req, res) => {
     action,
     sign_time,
     sign_string,
-    error,
-    error_note,
-    param2
-  } = req.body.Request;
+    param2,
+  } = _postData;
 
   try {
     if (
@@ -32,10 +39,10 @@ exports.preparePayment = async (req, res) => {
       sign_string === undefined ||
       param2 === undefined
     ) {
-      console.log('Missing required fields');
+      console.log("Missing required fields");
       return res.status(400).json({
         error: -1,
-        error_note: "Missing required fields"
+        error_note: "Missing required fields",
       });
     }
 
@@ -43,7 +50,7 @@ exports.preparePayment = async (req, res) => {
     if (!course) {
       return res.status(400).json({
         error: -9,
-        error_note: "Course not found"
+        error_note: "Course not found",
       });
     }
 
@@ -51,21 +58,21 @@ exports.preparePayment = async (req, res) => {
     if (!order) {
       return res.status(400).json({
         error: -5,
-        error_note: "Order not found"
+        error_note: "Order not found",
       });
     }
 
     if (order.amount !== amount) {
       return res.status(400).json({
         error: -9,
-        error_note: "Incorrect amount"
+        error_note: "Incorrect amount",
       });
     }
 
     if (order.course_id.toString() !== param2) {
       return res.status(400).json({
         error: -9,
-        error_note: "Incorrect course"
+        error_note: "Incorrect course",
       });
     }
 
@@ -77,16 +84,16 @@ exports.preparePayment = async (req, res) => {
       .digest("hex");
 
     if (sign_string !== expectedSignString) {
-      console.log('Invalid sign string');
+      console.log("Invalid sign string");
       return res.status(400).json({
         error: -1,
-        error_note: "Invalid sign string"
+        error_note: "Invalid sign string",
       });
     }
 
     const merchant_prepare_id = order._id;
 
-    // Отправляем успешный ответ
+    // Send successful response
     return res.status(200).json({
       result: {
         click_trans_id,
@@ -96,12 +103,11 @@ exports.preparePayment = async (req, res) => {
         error_note: "Success",
       },
     });
-
   } catch (error) {
     console.error("Error in preparePayment:", error);
     return res.status(500).json({
       error: -3,
-      error_note: "Server error"
+      error_note: "Server error",
     });
   }
 };

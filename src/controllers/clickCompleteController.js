@@ -1,8 +1,18 @@
 const crypto = require("crypto");
 const Order = require("../models/orderModel");
+const { x } = require("pdfkit");
 const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.completePayment = async (req, res) => {
+
+  const _postData = req.body?.Request?._postData; // Safely accessing _postData
+  if (!_postData) {
+    console.log("Missing required fields in _postData");
+    return res.status(400).json({
+      error: -1,
+      error_note: "Missing required fields in _postData",
+    });
+  }
   const {
     click_trans_id,
     service_id,
@@ -16,7 +26,7 @@ exports.completePayment = async (req, res) => {
     sign_time,
     sign_string,
     param2,
-  } = req.body.Request;
+  } = _postData;
 
   try {
     const calculatedSign = crypto
@@ -25,6 +35,8 @@ exports.completePayment = async (req, res) => {
         `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${amount}${action}${sign_time}`
       )
       .digest("hex");
+
+      console.log(`${calculatedSign}`)
 
     if (sign_string !== calculatedSign) {
       return res.status(400).json({
@@ -55,7 +67,8 @@ exports.completePayment = async (req, res) => {
       });
     }
 
-    if (merchant_prepare_id !== order._id.toString()) {
+    if (merchant_prepare_id !== order._id.toString()) { 
+      console.log("ll", merchant_prepare_id);
       return res.status(400).json({
         error: -5,
         error_note: "Prepare ID does not match order ID",
