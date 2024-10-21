@@ -18,7 +18,7 @@ exports.preparePayment = async (req, res) => {
     error,
     error_note,
     param2
-  } = req.body.Request;
+  } = req.body.Request._postData;  
 
   try {
     if (
@@ -85,8 +85,6 @@ exports.preparePayment = async (req, res) => {
     }
 
     const merchant_prepare_id = order._id;
-
-    // Отправляем успешный ответ
     return res.status(200).json({
       result: {
         click_trans_id,
