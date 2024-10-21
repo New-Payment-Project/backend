@@ -18,7 +18,7 @@ exports.preparePayment = async (req, res) => {
     error,
     error_note,
     param2
-  } = req.body.Request._postData;  
+  } = req.body.Request._postData;
 
   try {
     if (
