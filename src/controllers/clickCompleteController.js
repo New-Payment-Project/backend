@@ -3,24 +3,22 @@ const Order = require("../models/orderModel");
 const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.completePayment = async (req, res) => {
+  const {
+    click_trans_id,
+    service_id,
+    click_paydoc_id,
+    merchant_trans_id,
+    merchant_prepare_id,
+    amount,
+    action,
+    error,
+    error_note,
+    sign_time,
+    sign_string,
+    param2,
+  } = req.body.Request;
+
   try {
-  const { _postData } = req.body.Request
-
-    const {
-      click_trans_id,
-      service_id,
-      click_paydoc_id,
-      merchant_trans_id,
-      merchant_prepare_id,
-      amount,
-      action,
-      error,
-      error_note,
-      sign_time,
-      sign_string,
-      param2,
-    } = _postData;
-
     const calculatedSign = crypto
       .createHash("md5")
       .update(
@@ -28,19 +26,14 @@ exports.completePayment = async (req, res) => {
       )
       .digest("hex");
 
-    console.log(`${calculatedSign}`);
-
-    if (!sign_string || calculatedSign !== sign_string) {
+    if (sign_string !== calculatedSign) {
       return res.status(400).json({
         error: -1,
         error_note: "Invalid sign string",
       });
     }
 
-    const order = await Order.findOne({
-      invoiceNumber: merchant_trans_id,
-    });
-
+    const order = await Order.findOne({ invoiceNumber: merchant_trans_id });
     if (!order) {
       return res.status(400).json({ error: -2, error_note: "Order not found" });
     }
@@ -58,7 +51,7 @@ exports.completePayment = async (req, res) => {
         merchant_trans_id,
         merchant_confirm_id: merchant_prepare_id,
         error: -4,
-        error_note: "Payment was already performed",
+        error_note: "Payment already performed",
       });
     }
 
@@ -97,7 +90,7 @@ exports.completePayment = async (req, res) => {
       error_note: error_note || "An error occurred",
     });
   } catch (error) {
-    console.error("Error in completePayment controller:", error);
+    console.error("Error in completePayment:", error);
     return res.status(500).json({ error: -3, error_note: "Server error" });
   }
 };
