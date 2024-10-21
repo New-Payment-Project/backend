@@ -14,7 +14,6 @@ exports.preparePayment = async (req, res) => {
       error_note: "Missing required fields in _postData",
     });
   }
-
   const {
     click_trans_id,
     service_id,
