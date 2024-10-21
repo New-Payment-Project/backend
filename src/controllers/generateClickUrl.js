@@ -14,7 +14,6 @@ exports.generateClickPaymentUrl = (req, res) => {
     }
 
     const formattedAmount = parseInt(amount, 10); 
-
     const sign_string = crypto
         .createHash("md5")
         .update(
