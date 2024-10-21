@@ -24,8 +24,10 @@ exports.preparePayment = async (req, res) => {
     action,
     sign_time,
     sign_string,
-    param2,
-  } = _postData;
+    error,
+    error_note,
+    param2
+  } = req.body.Request;
 
   try {
     if (
@@ -93,7 +95,7 @@ exports.preparePayment = async (req, res) => {
 
     const merchant_prepare_id = order._id;
 
-    // Send successful response
+    // Отправляем успешный ответ
     return res.status(200).json({
       result: {
         click_trans_id,
