@@ -14,7 +14,6 @@ exports.generateClickPaymentUrl = (req, res) => {
     const return_url = "https://forum.norbekovgroup.uz/course-info";
 
     const sign_time = new Date().toISOString();
-
     const sign_string = crypto
         .createHash("md5")
         .update(
