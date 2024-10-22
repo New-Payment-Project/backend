@@ -31,7 +31,7 @@ exports.preparePayment = async (req, res) => {
     if (
       click_trans_id === undefined ||
       service_id === undefined ||
-      click_paydoc_id === undefined ||
+      click_paydoc_id === undefined ||  
       merchant_trans_id === undefined ||
       amount === undefined ||
       action === undefined ||
