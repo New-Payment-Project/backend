@@ -1,4 +1,4 @@
-const bcrypt = require('bcryptjs');
+const bcrypt = require("bcryptjs");
 const { Buffer } = require("buffer");
 
 const Order = require("../models/orderModel");
@@ -8,7 +8,7 @@ const User = require("../models/userModel");
 
 const realServiceId = 498614016;
 
-const getUsers = async(req,res) =>{
+const getUsers = async (req, res) => {
   try {
     const users = await User.find({});
     res.status(200).json(users);
@@ -16,7 +16,7 @@ const getUsers = async(req,res) =>{
     res.status(500).json({ message: error.message });
     console.log(error);
   }
-}
+};
 
 const loginUzumBank = async function (req, res) {
   const { login, password } = req.body;
@@ -35,7 +35,9 @@ const loginUzumBank = async function (req, res) {
 
     const credentials = Buffer.from(`${login}:${password}`).toString("base64");
 
-    res.status(200).json({ message: "Authentication successful", token: credentials });
+    res
+      .status(200)
+      .json({ message: "Authentication successful", token: credentials });
   } catch (error) {
     res.status(500).json({ message: error.message });
     console.log(error);
@@ -60,10 +62,6 @@ const checkTransaction = async (req, res) => {
     !params.courseId ||
     !String(params.amount) ||
     params.amount < 0 ||
-    !params.clientName ||
-    !params.clientAddress ||
-    !params.clientPhone ||
-    !params.passport ||
     !params.invoiceNumber
   ) {
     return res.status(400).json({
@@ -100,21 +98,6 @@ const checkTransaction = async (req, res) => {
         amount: {
           value: params.amount,
         },
-        clientName: {
-          value: params.clientName,
-        },
-        clientAddress: {
-          value: params.clientAddress,
-        },
-        clientPhone: {
-          value: params.clientPhone,
-        },
-        passport: {
-          value: params.passport,
-        },
-        tgUsername: {
-          value: params.tgUsername,
-        },
       },
     });
   } catch (error) {
@@ -147,17 +130,7 @@ const createTransaction = async (req, res) => {
     });
   }
 
-  if (
-    !params.courseId ||
-    !params.invoiceNumber ||
-    !String(params.amount) ||
-    !params.clientName ||
-    !params.clientAddress ||
-    !params.clientPhone ||
-    !params.passport
-    // !params.courseTitle ||
-    // !params.prefix
-  ) {
+  if (!params.courseId || !params.invoiceNumber) {
     console.error("Необходимые параметры отсутствуют в запросе:", req.body);
     return res.status(400).json({
       serviceId: serviceId,
@@ -165,14 +138,15 @@ const createTransaction = async (req, res) => {
       status: "FAILED",
       transTime: Date.now(),
       errorCode: "10007",
-    }); 
+    });
   }
 
   try {
-    let transaction = (await Order.findOne({ transactionId: transId })) || null;
+    let transaction =
+      (await Order.findOne({ invoiceNumber: params.invoiceNumber })) || null;
     const course = (await Course.findById(params.courseId)) || null;
 
-    if (transaction || transaction?.transactionId) {
+    if (transaction?.transactionId) {
       return res.status(404).json({
         serviceId: serviceId,
         transId: transId,
@@ -199,27 +173,37 @@ const createTransaction = async (req, res) => {
       });
     }
 
-    const newOrder = await Order.create({
-      transactionId: transId,
-      invoiceNumber: params.invoiceNumber,
-      create_time: timestamp,
-      amount: amount,
-      course_id: course._id,
-      status: "ВЫСТАВЛЕНО",
-      paymentType: "Uzum",
-      clientName: params.clientName || "Не указано",
-      clientPhone: params.clientPhone || "Не указано",
-      clientAddress: params.clientAddress || "Не указано",
-      tgUsername: params.tgUsername || "Не указано",
-      passport: params.passport || "Не указано",
-      // prefix: params.prefix,
-      // courseTitle: params.courseTitle,
-    });
+    let order;
+
+    if (!transaction) {
+      order = await Order.create({
+        transactionId: transId,
+        invoiceNumber: params.invoiceNumber,
+        create_time: timestamp,
+        amount: amount,
+        course_id: course._id,
+        status: "ВЫСТАВЛЕНО",
+        paymentType: "Uzum",
+      });
+    } else {
+      order = await Order.findByIdAndUpdate(
+        { invoiceNumber: params.invoiceNumber },
+        {
+          transactionId: transId,
+          create_time: timestamp,
+          amount: amount,
+          course_id: params.courseId,
+          status: "ВЫСТАВЛЕНО",
+          paymentType: "Uzum",
+        },
+        { new: true }
+      );
+    }
+
     await Invoice.findOneAndUpdate(
-      { invoiceNumber: newOrder.invoiceNumber },
+      { invoiceNumber: order.invoiceNumber },
       { status: "ВЫСТАВЛЕНО" }
     );
-    console.log(newOrder);
 
     res.status(201).json({
       serviceId: serviceId,
@@ -231,22 +215,7 @@ const createTransaction = async (req, res) => {
           value: course._id,
         },
         invoiceNumber: {
-          value: newOrder.invoiceNumber,
-        },
-        clientName: {
-          value: newOrder.clientName,
-        },
-        clientAddress: {
-          value: newOrder.clientAddress,
-        },
-        clientPhone: {
-          value: newOrder.clientPhone,
-        },
-        passport: {
-          value: newOrder.passport,
-        },
-        tgUsername: {
-          value: newOrder.tgUsername,
+          value: order.invoiceNumber,
         },
       },
       amount: amount,
@@ -261,9 +230,9 @@ const createTransaction = async (req, res) => {
 };
 
 const confirmTransaction = async (req, res) => {
-  const { serviceId, timestamp, transId, paymentSource } = req.body;
+  const { serviceId, timestamp, transId } = req.body;
 
-  if (!serviceId || !timestamp || !transId || !paymentSource) {
+  if (!serviceId || !timestamp || !transId) {
     return res.status(400).json({
       status: "FAILED",
       confirmTime: timestamp,
@@ -321,21 +290,6 @@ const confirmTransaction = async (req, res) => {
         },
         invoiceNumber: {
           value: order.invoiceNumber,
-        },
-        clientName: {
-          value: order.clientName,
-        },
-        clientAddress: {
-          value: order.clientAddress,
-        },
-        clientPhone: {
-          value: order.clientPhone,
-        },
-        passport: {
-          value: order.passport,
-        },
-        tgUsername: {
-          value: order.tgUsername,
         },
       },
       amount: order.amount,
@@ -411,21 +365,6 @@ const reverseTransaction = async (req, res) => {
         invoiceNumber: {
           value: order.invoiceNumber,
         },
-        clientName: {
-          value: order.clientName,
-        },
-        clientAddress: {
-          value: order.clientAddress,
-        },
-        clientPhone: {
-          value: order.clientPhone,
-        },
-        passport: {
-          value: order.passport,
-        },
-        tgUsername: {
-          value: order.tgUsername,
-        },
       },
       amount: order.amount,
     });
@@ -477,21 +416,6 @@ const checkTransactionStatus = async (req, res) => {
         invoiceNumber: {
           value: order.invoiceNumber,
         },
-        clientName: {
-          value: order.clientName,
-        },
-        clientAddress: {
-          value: order.clientAddress,
-        },
-        clientPhone: {
-          value: order.clientPhone,
-        },
-        passport: {
-          value: order.passport,
-        },
-        tgUsername: {
-          value: order.tgUsername,
-        },
       },
       amount: order.amount,
     });
@@ -511,5 +435,5 @@ module.exports = {
   confirmTransaction,
   reverseTransaction,
   checkTransactionStatus,
-  getUsers
+  getUsers,
 };
