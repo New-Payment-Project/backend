@@ -30,12 +30,7 @@ dotenv.config();
 connectDB();
 
 const app = express();
-
-<<<<<<< HEAD
-app.use(limiter);
-=======
 app.use(globalLimiter);
->>>>>>> 84b241fac6ad62e8bd37eadbeb7ee51e46a74da8
 
 app.use(
   cors({
