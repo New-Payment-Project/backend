@@ -7,13 +7,16 @@ exports.preparePayment = async (req, res) => {
   console.log("Received body:", req.body);
 
   const _postData = req.body?.Request?._postData; // Safely accessing _postData
-  if (!_postData) {
-    console.log("Missing required fields in _postData");
-    return res.status(400).json({
-      error: -1,
-      error_note: "Missing required fields in _postData",
-    });
-  }
+
+if (!_postData) {
+  console.log("Missing required fields in _postData");
+  return res.status(400).json({
+    error: -1,
+    error_note: "Missing required fields in _postData",
+    _postData: req.body?.Request // Return whatever data is inside `Request` if it exists
+  });
+}
+
   const {
     click_trans_id,
     service_id,
