@@ -52,7 +52,7 @@ const generateContractPDF = async (req, res) => {
     doc.text(`Тошкент шаҳри                                                                                       ${new Date().toLocaleDateString('ru-RU')}`);
     doc.moveDown(2);
 
-    doc.text(`Ўзбекистон Республикаси Фуқаролик Кодекси талабаларига асосан «Буюртмачи» деб аталувчи "${order.clientName}" номидан устав асосида иш юритувчи унинг директори TULABOYEV BEKZOD ZAMON UG‘LI ва «Хизмат кўрсатувчи» деб аталувчи «NORBEKOV SOG’LOMLASHTIRISH VA MASLAHАТ МАРКАЗИ» МЧЖ номидан устав асосида иш юритувчи унинг директори  М.Х.Шарипов  номидан иккинчи томондан қуйидагилар ҳақида ушбу шартномани тузадилар.`);
+    doc.text(`Ўзбекистон Республикаси Фуқаролик Кодекси талабаларига асосан «Буюртмачи» деб аталувчи ${order.clientName} номидан устав асосида иш юритувчи унинг директори TULABOYEV BEKZOD ZAMON UG‘LI ва «Хизмат кўрсатувчи» деб аталувчи «NORBEKOV SOG’LOMLASHTIRISH VA MASLAHАТ МАРКАЗИ» МЧЖ номидан устав асосида иш юритувчи унинг директори  М.Х.Шарипов  номидан иккинчи томондан қуйидагилар ҳақида ушбу шартномани тузадилар.`);
     doc.moveDown();
     doc.fontSize(11).text(`I. ШАРТНОМАНИНГ ПРЕДМЕТИ`, { align: "center" });
     doc.moveDown();
@@ -132,12 +132,8 @@ const generateContractPDF = async (req, res) => {
 
     doc.rect(leftColumnX, tableTop, 220, tableHeight).stroke();
     doc.text(`Заказчик: ${order.clientName}`, leftColumnX + 10, tableTop + 20);
-    doc.text(`Паспорт: ${order.passport}`, leftColumnX + 10, tableTop + 40);
-    doc.text(`Телефон: ${order.clientPhone}`, leftColumnX + 10, tableTop + 60);
-    doc.text(`Адрес: ${order.clientAddress}`, leftColumnX + 10, tableTop + 80, {
-      width: 200,
-      align: 'left',
-    });
+    doc.text(`Телефон: ${order.clientPhone}`, leftColumnX + 10, tableTop + 40);
+    doc.text(`Телеграм: ${order.tgUsername}`, leftColumnX + 10, tableTop + 60);
 
     doc.rect(rightColumnX, tableTop, 220, tableHeight).stroke();
     doc.text('«Хизмат кўрсатувчи»', rightColumnX + 10, tableTop + 10);

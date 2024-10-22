@@ -8,7 +8,7 @@ const User = require("../models/userModel");
 
 const realServiceId = 498614016;
 
-const getUsers = async(req,res) =>{
+const getUsers = async (req, res) => {
   try {
     const users = await User.find({});
     res.status(200).json(users);
@@ -165,7 +165,7 @@ const createTransaction = async (req, res) => {
       status: "FAILED",
       transTime: Date.now(),
       errorCode: "10007",
-    }); 
+    });
   }
 
   try {
