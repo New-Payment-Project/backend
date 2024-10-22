@@ -1,12 +1,17 @@
-const rateLimiter = require("express-rate-limit")
+const rateLimiter = require("express-rate-limit");
 
-const limiter = rateLimiter.rateLimit({
-	windowMs: 15 * 60 * 1000,
-	limit: 200,
-	standardHeaders: 'draft-7',
-	legacyHeaders: false,
-	message: {message: "Слишком много запросов с этого IP, попробуйте позже."}
-})
+const globalLimiter = rateLimiter.rateLimit({
+  windowMs: 5 * 1000,
+  limit: 100,
+  standardHeaders: "draft-7",
+  legacyHeaders: false
+});
 
+const loginLimiter = rateLimiter.rateLimit({
+  windowMs: 5 * 60 * 1000,
+  limit: 5,
+  standardHeaders: "draft-7",
+  legacyHeaders: false
+});
 
-module.exports = limiter
+module.exports = { globalLimiter, loginLimiter };

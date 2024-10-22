@@ -2,8 +2,9 @@ const express = require("express");
 const connectDB = require("./config/database");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const bodyParser = require("body-parser");
+const { globalLimiter, loginLimiter } = require("./services/requestRateLimiter");
 const authMiddleware = require("./middlware/auth");
-const limiter = require("./services/requestRateLimiter");
 const uzumAuthMiddleware = require("./middlware/uzumAuthMiddleware");
 const pdfGenerateRoute = require("./routes/pdfGenerateRoute");
 
@@ -30,10 +31,8 @@ connectDB();
 
 const app = express();
 
-// Apply rate limiting globally
-app.use(limiter);
+app.use(globalLimiter);
 
-// CORS configuration
 app.use(
   cors({
     origin: [
