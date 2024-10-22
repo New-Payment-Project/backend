@@ -26,7 +26,7 @@ exports.preparePayment = async (req, res) => {
     error,
     error_note,
     param2
-  } = req.body.Request._postData;
+  } = _postData;
   try {
     if (
       click_trans_id === undefined ||
