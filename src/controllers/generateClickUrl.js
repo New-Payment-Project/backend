@@ -13,15 +13,7 @@ exports.generateClickPaymentUrl = (req, res) => {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const formattedAmount = parseInt(amount, 10);
-    const sign_string = crypto
-        .createHash("md5")
-        .update(
-            `${merchant_trans_id}${service_id}${SECRET_KEY}${formattedAmount}${merchant_id}`
-        )
-        .digest("hex");
-
-    const paymentUrl = `https://my.click.uz/services/pay/?service_id=${service_id}&merchant_id=${merchant_id}&merchant_user_id=${merchant_user_id}&transaction_param=${merchant_trans_id}&amount=${formattedAmount}&additional_param3=${course_id}&return_url=${encodeURIComponent(
+    const paymentUrl = `https://my.click.uz/services/pay/?service_id=${service_id}&merchant_id=${merchant_id}&merchant_user_id=${merchant_user_id}&transaction_param=${merchant_trans_id}&amount=${amount}&additional_param3=${course_id}&return_url=${encodeURIComponent(
         return_url
     )}`;
 

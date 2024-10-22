@@ -38,10 +38,10 @@ exports.registerUser = async (req, res) => {
 
 // User login
 exports.loginUser = async (req, res) => {
-    const { login, password } = req.body;
+    const { username, password } = req.body;
 
     try {
-        const user = await User.findOne({ login });
+        const user = await User.findOne({ login: username });
         if (!user) {
             return res.status(400).json({
                 status: 'error',
