@@ -67,7 +67,12 @@ const orderSchema = new mongoose.Schema({
   paymentType: {
     type: String,
     enum: ["Payme", "Click", "Uzum"]
-  }
+  },
+  contractUrl: {
+    type: String,
+    default: null,
+    required: false
+  },
 });
 
 module.exports = mongoose.model('Orders', orderSchema);

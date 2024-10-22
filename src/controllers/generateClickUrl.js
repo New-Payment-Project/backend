@@ -13,7 +13,7 @@ exports.generateClickPaymentUrl = (req, res) => {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const formattedAmount = parseInt(amount, 10); 
+    const formattedAmount = parseInt(amount, 10);
     const sign_string = crypto
         .createHash("md5")
         .update(
@@ -25,6 +25,5 @@ exports.generateClickPaymentUrl = (req, res) => {
         return_url
     )}`;
 
-    // Возвращаем URL
     return res.json({ paymentUrl });
 };
