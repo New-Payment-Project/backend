@@ -14,7 +14,6 @@ exports.preparePayment = async (req, res) => {
       error_note: "Missing required fields in _postData",
     });
   }
-
   const {
     click_trans_id,
     service_id,
@@ -94,7 +93,6 @@ exports.preparePayment = async (req, res) => {
 
     const merchant_prepare_id = order._id;
 
-    // Отправляем успешный ответ
     return res.status(200).json({
       result: {
         click_trans_id,
