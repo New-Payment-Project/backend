@@ -10,7 +10,6 @@ const getOrders = async (req, res) => {
     res.status(500).json({ message: "Error getting orders", error: error.message });
   }
 };
-
 const getOrderById = async (req, res) => {
   try {
     const orderId = req.params.id;
