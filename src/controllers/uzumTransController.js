@@ -75,7 +75,7 @@ const checkTransaction = async (req, res) => {
   try {
     const course = (await Course.findById(params.courseId)) || null;
 
-    if (!course || String(course?.price) !== String(params.amount)) {
+    if (!course || String(course?.price * 100) !== String(params.amount)) {
       return res.status(400).json({
         serviceId: serviceId,
         timestamp: timestamp,
