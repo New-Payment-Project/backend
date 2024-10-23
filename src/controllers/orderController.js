@@ -24,7 +24,6 @@ const getOrderById = async (req, res) => {
     res.status(500).json({ message: "Error getting order", error: error.message });
   }
 };
-
 const createOrder = async (req, res) => {
   try {
     const {
