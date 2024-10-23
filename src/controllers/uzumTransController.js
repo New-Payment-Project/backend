@@ -61,7 +61,7 @@ const checkTransaction = async (req, res) => {
     !params ||
     !params.courseId ||
     !String(params.amount) ||
-    params.amount < 0 ||
+    parseInt(params.amount) < 0 ||
     !params.invoiceNumber
   ) {
     return res.status(400).json({
@@ -75,7 +75,7 @@ const checkTransaction = async (req, res) => {
   try {
     const course = (await Course.findById(params.courseId)) || null;
 
-    if (!course || course?.price !== params.amount) {
+    if (!course || String(course?.price) !== String(params.amount)) {
       return res.status(400).json({
         serviceId: serviceId,
         timestamp: timestamp,
@@ -96,7 +96,7 @@ const checkTransaction = async (req, res) => {
           value: params.invoiceNumber,
         },
         amount: {
-          value: params.amount,
+          value: String(params.amount),
         },
       },
     });
@@ -164,7 +164,7 @@ const createTransaction = async (req, res) => {
         errorCode: "10002",
       });
     }
-    if (course.price * 100 !== amount) {
+    if (course.price * 100 !== parseInt(amount)) {
       return res.status(400).json({
         serviceId: serviceId,
         timestamp: timestamp,
@@ -180,7 +180,7 @@ const createTransaction = async (req, res) => {
         transactionId: transId,
         invoiceNumber: params.invoiceNumber,
         create_time: timestamp,
-        amount: amount,
+        amount: parseInt(amount),
         course_id: course._id,
         status: "ВЫСТАВЛЕНО",
         paymentType: "Uzum",
@@ -191,7 +191,7 @@ const createTransaction = async (req, res) => {
         {
           transactionId: transId,
           create_time: timestamp,
-          amount: amount,
+          amount: parseInt(amount),
           course_id: params.courseId,
           status: "ВЫСТАВЛЕНО",
           paymentType: "Uzum",
@@ -218,7 +218,7 @@ const createTransaction = async (req, res) => {
           value: order.invoiceNumber,
         },
       },
-      amount: amount,
+      amount: String(amount),
     });
   } catch (error) {
     console.log("Received error: ", error);
@@ -292,7 +292,7 @@ const confirmTransaction = async (req, res) => {
           value: order.invoiceNumber,
         },
       },
-      amount: order.amount,
+      amount: String(order.amount),
     });
   } catch (error) {
     console.log("Received error: ", error);
@@ -366,7 +366,7 @@ const reverseTransaction = async (req, res) => {
           value: order.invoiceNumber,
         },
       },
-      amount: order.amount,
+      amount: String(order.amount),
     });
   } catch (error) {
     console.log("Received error: ", error);
@@ -417,7 +417,7 @@ const checkTransactionStatus = async (req, res) => {
           value: order.invoiceNumber,
         },
       },
-      amount: order.amount,
+      amount: String(order.amount),
     });
   } catch (error) {
     console.log("Received error: ", error);
