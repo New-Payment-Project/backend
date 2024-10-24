@@ -79,7 +79,10 @@ const checkTransaction = async (req, res) => {
         },
         invoiceNumber: {
           value: params.invoiceNumber,
-        }
+        },
+        amount: {
+          value: course.amount,
+        },
       },
     });
   } catch (error) {
