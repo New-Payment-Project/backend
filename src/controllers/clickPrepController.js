@@ -12,7 +12,7 @@ if (_postData === undefined) {
   console.log("Missing required fields in _postData field");
   return res.status(400).json({
     error: -1,
-    error_note: "Missing required fields in _postData",
+    error_note: "Missing required fields in _postData field",
     _postData: req.body?.Request // Return whatever data is inside `Request` if it exists
   });
 }
