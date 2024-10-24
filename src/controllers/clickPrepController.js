@@ -8,8 +8,8 @@ exports.preparePayment = async (req, res) => {
 
   const _postData = req.body?.Request?._postData; // Safely accessing _postData
 
-if (!_postData) {
-  console.log("Missing required fields in _postData");
+if (_postData === undefined) {
+  console.log("Missing required fields in _postData field");
   return res.status(400).json({
     error: -1,
     error_note: "Missing required fields in _postData",
@@ -85,6 +85,7 @@ if (!_postData) {
         `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${amount}${action}${sign_time}`
       )
       .digest("hex");
+      console.log(expectedSignString)
 
     if (sign_string !== expectedSignString) {
       console.log("Invalid sign string");
