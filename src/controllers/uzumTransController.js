@@ -81,7 +81,7 @@ const checkTransaction = async (req, res) => {
           value: params.invoiceNumber,
         },
         amount: {
-          value: course.amount,
+          value: course.price,
         },
       },
     });
