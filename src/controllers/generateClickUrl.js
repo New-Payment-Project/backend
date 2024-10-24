@@ -14,7 +14,8 @@ exports.generateClickPaymentUrl = (req, res) => {
   }
 
   const hashString = `${merchant_id}${merchant_trans_id}${SECRET_KEY}`;
-  const hash = crypto.createHash("sha256").update(hashString).digest("hex");
+  
+  const hash = crypto.createHash("md5").update(hashString).digest("hex");
 
   const paymentUrl = `https://my.click.uz/services/pay?service_id=${service_id}&merchant_id=${merchant_id}&amount=${amount}&transaction_param=${merchant_trans_id}&return_url=${encodeURIComponent(
     return_url
