@@ -12,7 +12,6 @@ exports.generateClickPaymentUrl = (req, res) => {
     if (!amount || !merchant_trans_id || !course_id) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
-
     const paymentUrl = `https://my.click.uz/services/pay?service_id=${service_id}&merchant_id=${merchant_id}&amount=${amount}&transaction_param=${merchant_trans_id}&return_url=${encodeURIComponent(return_url)}&merchant_user_id=${merchant_user_id}&additional_param3=${course_id}`;
 
     return res.json({ paymentUrl });
