@@ -57,13 +57,7 @@ const checkTransaction = async (req, res) => {
     });
   }
 
-  if (
-    !params ||
-    !params.courseId ||
-    !String(params.amount) ||
-    parseInt(params.amount) < 0 ||
-    !params.invoiceNumber
-  ) {
+  if (!params || !params.courseId || !params.invoiceNumber) {
     return res.status(400).json({
       serviceId: serviceId,
       timestamp: timestamp,
@@ -74,15 +68,6 @@ const checkTransaction = async (req, res) => {
 
   try {
     const course = (await Course.findById(params.courseId)) || null;
-
-    if (!course || String(course?.price * 100) !== String(params.amount)) {
-      return res.status(400).json({
-        serviceId: serviceId,
-        timestamp: timestamp,
-        status: "FAILED",
-        errorCode: "10002",
-      });
-    }
 
     res.status(200).json({
       serviceId: serviceId,
@@ -96,7 +81,7 @@ const checkTransaction = async (req, res) => {
           value: params.invoiceNumber,
         },
         amount: {
-          value: String(params.amount),
+          value: course.price,
         },
       },
     });
@@ -121,7 +106,7 @@ const createTransaction = async (req, res) => {
     });
   }
 
-  if (!amount || !timestamp || !transId || !params) {
+  if (!amount || !timestamp || !transId || !params || parseInt(amount) < 0) {
     return res.status(400).json({
       transId: transId,
       status: "FAILED",
