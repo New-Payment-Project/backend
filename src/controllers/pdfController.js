@@ -1,5 +1,7 @@
-const PDFDocument = require('pdfkit');
 const path = require('path');
+const fs = require('fs');
+const PDFDocument = require('pdfkit');
+const Order = require('../models/orderModel');
 
 const generateContractPDF = async (req, res) => {
   try {
@@ -10,17 +12,32 @@ const generateContractPDF = async (req, res) => {
       return res.status(400).send('Договор может быть создан только для оплаченных заказов.');
     }
 
+    const contractDir = path.join(__dirname, '..', 'contracts');
+    if (!fs.existsSync(contractDir)) {
+      fs.mkdirSync(contractDir, { recursive: true });
+    }
+
+    const pdfFilePath = path.join(contractDir, `contract_${order.invoiceNumber}.pdf`);
     const doc = new PDFDocument({ size: 'A4', margin: 50 });
     const chunks = [];
+
     doc.on('data', (chunk) => chunks.push(chunk));
-    doc.on('end', () => {
+    doc.on('end', async () => {
       const pdfBuffer = Buffer.concat(chunks);
+
+      fs.writeFileSync(pdfFilePath, pdfBuffer);
+
       res.set({
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename=contract_${order.invoiceNumber}.pdf`,
         'Content-Length': pdfBuffer.length,
       });
+
       res.status(200).send(pdfBuffer);
+
+      const contractUrl = `/contracts/contract_${order.invoiceNumber}.pdf`;
+
+      await Order.updateOne({ _id: order._id }, { $set: { contractUrl } });
     });
 
     const fontPath = path.join(__dirname, 'fonts', 'DejaVuSans.ttf');
@@ -32,10 +49,10 @@ const generateContractPDF = async (req, res) => {
     doc.fontSize(10).text('(хизмат кўрсатиш ҳақида)', { align: 'center' });
     doc.moveDown();
 
-    doc.text(`Тошкент шаҳри                                                                                   ${new Date().toLocaleDateString('ru-RU')}`);
+    doc.text(`Тошкент шаҳри                                                                                       ${new Date().toLocaleDateString('ru-RU')}`);
     doc.moveDown(2);
 
-    doc.text(`Ўзбекистон Республикаси Фуқаролик Кодекси талабаларига асосан «Буюртмачи» деб аталувчи "${order.clientName}" номидан устав асосида иш юритувчи унинг директори TULABOYEV BEKZOD ZAMON UG‘LI ва «Хизмат кўрсатувчи» деб аталувчи «NORBEKOV SOG’LOMLASHTIRISH VA MASLAHАТ МАРКАЗИ» МЧЖ номидан устав асосида иш юритувчи унинг директори  М.Х.Шарипов  номидан иккинчи томондан қуйидагилар ҳақида ушбу шартномани тузадилар.`);
+    doc.text(`Ўзбекистон Республикаси Фуқаролик Кодекси талабаларига асосан «Буюртмачи» деб аталувчи ${order.clientName} номидан устав асосида иш юритувчи унинг директори TULABOYEV BEKZOD ZAMON UG‘LI ва «Хизмат кўрсатувчи» деб аталувчи «NORBEKOV SOG’LOMLASHTIRISH VA MASLAHАТ МАРКАЗИ» МЧЖ номидан устав асосида иш юритувчи унинг директори  М.Х.Шарипов  номидан иккинчи томондан қуйидагилар ҳақида ушбу шартномани тузадилар.`);
     doc.moveDown();
     doc.fontSize(11).text(`I. ШАРТНОМАНИНГ ПРЕДМЕТИ`, { align: "center" });
     doc.moveDown();
@@ -115,12 +132,8 @@ const generateContractPDF = async (req, res) => {
 
     doc.rect(leftColumnX, tableTop, 220, tableHeight).stroke();
     doc.text(`Заказчик: ${order.clientName}`, leftColumnX + 10, tableTop + 20);
-    doc.text(`Паспорт: ${order.passport}`, leftColumnX + 10, tableTop + 40);
-    doc.text(`Телефон: ${order.clientPhone}`, leftColumnX + 10, tableTop + 60);
-    doc.text(`Адрес: ${order.clientAddress}`, leftColumnX + 10, tableTop + 80, {
-      width: 200,
-      align: 'left',
-    });
+    doc.text(`Телефон: ${order.clientPhone}`, leftColumnX + 10, tableTop + 40);
+    doc.text(`Телеграм: ${order.tgUsername}`, leftColumnX + 10, tableTop + 60);
 
     doc.rect(rightColumnX, tableTop, 220, tableHeight).stroke();
     doc.text('«Хизмат кўрсатувчи»', rightColumnX + 10, tableTop + 10);
@@ -137,8 +150,8 @@ const generateContractPDF = async (req, res) => {
 
     doc.text('Директор _______________', rightColumnX, tableTop + 200);
     doc.text('Шарипов  М.Х.', rightColumnX + 140, tableTop + 200);
-
     doc.end();
+
   } catch (err) {
     console.error('Ошибка генерации договора:', err);
     res.status(500).send('Ошибка генерации договора');

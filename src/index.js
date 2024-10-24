@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require("express");
 const connectDB = require("./config/database");
 const dotenv = require("dotenv");
@@ -26,11 +27,9 @@ const {
 
 dotenv.config();
 
-// Connect to the database
 connectDB();
 
 const app = express();
-
 app.use(globalLimiter);
 
 app.use(
@@ -60,11 +59,9 @@ app.use(
   })
 );
 
-// Body parsers (use built-in express.json() and express.urlencoded())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
 app.use("/", paymentRoutes);
 app.use("/", generateClickUrl);
 app.use("/api/v1/uzum-bank", uzumAuthMiddleware, uzumBankRoutes);
@@ -79,8 +76,8 @@ app.use("/api/v1", invoiceOrdersRoutes);
 app.use("/api/v1/click", clickPrepRoutes);
 app.use("/api/v1/click", clickCompleteRoutes);
 app.use("/api/v1", pdfGenerateRoute);
+app.use('/contracts', express.static(path.join(__dirname, 'contracts')));
 
-// Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

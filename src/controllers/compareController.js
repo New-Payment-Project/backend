@@ -1,5 +1,4 @@
 const compareOrdersAndInvoices = require('../services/CompareOrdersInvoices');
-
 const getComparedOrdersAndInvoices = async (req, res) => {
   try {
     const comparedResults = await compareOrdersAndInvoices();
