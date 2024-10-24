@@ -8,8 +8,8 @@ exports.preparePayment = async (req, res) => {
 
   const _postData = req.body?.Request?._postData; // Safely accessing _postData
 
-if (!_postData) {
-  console.log("Missing required fields in _postData");
+if (_postData === undefined) {
+  console.log("Missing required fields in _postData field");
   return res.status(400).json({
     error: -1,
     error_note: "Missing required fields in _postData",
