@@ -6,14 +6,11 @@ const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 exports.preparePayment = async (req, res) => {
   console.log("Received body:", req.body);
 
-  const _postData = req.body?.Request?._postData; // Safely accessing _postData
-
-if (_postData === undefined) {
+if (req.body._postData === undefined) {
   console.log("Missing required fields in _postData field");
   return res.status(400).json({
     error: -1,
-    error_note: "Missing required fields in _postData field",
-    _postData: req.body?.Request // Return whatever data is inside `Request` if it exists
+    error_note: "_postData is empty",
   });
 }
 
@@ -29,7 +26,7 @@ if (_postData === undefined) {
     error,
     error_note,
     param2
-  } = _postData;
+  } = req.body?._postData;
   try {
     if (
       click_trans_id === undefined ||
