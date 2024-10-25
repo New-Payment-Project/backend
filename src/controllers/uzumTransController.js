@@ -128,8 +128,10 @@ const createTransaction = async (req, res) => {
 
   try {
     let transaction =
-      (await Order.findOne({ invoiceNumber: params.invoiceNumber })) || null;
+      (await Order.findOne({ transactionId: params.transId })) || null;
     const course = (await Course.findById(params.courseId)) || null;
+    const clientOrder =
+      (await Order.findOne({ invoiceNumber: params.invoiceNumber })) || null;
 
     if (transaction?.transactionId) {
       return res.status(404).json({
@@ -160,7 +162,7 @@ const createTransaction = async (req, res) => {
 
     let order;
 
-    if (!transaction) {
+    if (!clientOrder) {
       order = await Order.create({
         transactionId: transId,
         invoiceNumber: params.invoiceNumber,
