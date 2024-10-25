@@ -60,7 +60,7 @@ app.use(
 );
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false })); //true
 
 app.use("/", paymentRoutes);
 app.use("/", generateClickUrl);

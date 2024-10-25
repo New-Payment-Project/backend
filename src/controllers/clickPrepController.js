@@ -6,13 +6,29 @@ const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 exports.preparePayment = async (req, res) => {
   console.log("Received body:", req.body);
 
-if (req.body._postData === undefined) {
-  console.log("Missing required fields in _postData field");
-  return res.status(400).json({
-    error: -1,
-    error_note: "_postData is empty",
-  });
-}
+  if (req.body === undefined) {
+    console.log("Missing required fields in _postData field");
+    return res.status(400).json({
+      error: -1,
+      error_note: "request is empty",
+    });
+  }
+
+  if (req._postData === undefined) {
+    console.log("Missing required fields in _postData field");
+    return res.status(400).json({
+      error: -1,
+      error_note: "request _postData is empty",
+    });
+  }
+
+  if (req.body._postData === undefined) {
+    console.log("Missing required fields in _postData field");
+    return res.status(400).json({
+      error: -1,
+      error_note: "_postData is empty",
+    });
+  }
 
   const {
     click_trans_id,
@@ -57,17 +73,18 @@ if (req.body._postData === undefined) {
     const order = await Order.findOne({ invoiceNumber: merchant_trans_id });
     if (!order) {
       return res.status(400).json({
-        error: -5,
+        error: -9,
         error_note: "Order not found",
       });
     }
 
     if (order.amount !== amount) {
       return res.status(400).json({
-        error: -9,
+        error: -2,
         error_note: "Incorrect amount",
       });
     }
+    
 
     if (order.course_id.toString() !== param2) {
       return res.status(400).json({
