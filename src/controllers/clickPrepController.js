@@ -6,7 +6,7 @@ const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 exports.preparePayment = async (req, res) => {
   console.log("Received body:", req.body);
 
-  if (req.body === undefined) {
+  if (req.body._postData === undefined) {
     console.log("Missing required fields in _postData field");
     return res.status(400).json({
       error: -1,
@@ -26,7 +26,7 @@ exports.preparePayment = async (req, res) => {
     error,
     error_note,
     param2
-  } = req.body;
+  } = req.body?._postData;
   try {
     if (
       click_trans_id === undefined ||
