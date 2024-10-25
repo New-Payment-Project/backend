@@ -57,13 +57,7 @@ const checkTransaction = async (req, res) => {
     });
   }
 
-  if (
-    !params ||
-    !params.courseId ||
-    !String(params.amount) ||
-    params.amount < 0 ||
-    !params.invoiceNumber
-  ) {
+  if (!params || !params.courseId || !params.invoiceNumber) {
     return res.status(400).json({
       serviceId: serviceId,
       timestamp: timestamp,
@@ -74,15 +68,6 @@ const checkTransaction = async (req, res) => {
 
   try {
     const course = (await Course.findById(params.courseId)) || null;
-
-    if (!course || course?.price !== params.amount) {
-      return res.status(400).json({
-        serviceId: serviceId,
-        timestamp: timestamp,
-        status: "FAILED",
-        errorCode: "10002",
-      });
-    }
 
     res.status(200).json({
       serviceId: serviceId,
@@ -96,7 +81,7 @@ const checkTransaction = async (req, res) => {
           value: params.invoiceNumber,
         },
         amount: {
-          value: params.amount,
+          value: course.price,
         },
       },
     });
@@ -121,7 +106,7 @@ const createTransaction = async (req, res) => {
     });
   }
 
-  if (!amount || !timestamp || !transId || !params) {
+  if (!amount || !timestamp || !transId || !params || parseInt(amount) < 0) {
     return res.status(400).json({
       transId: transId,
       status: "FAILED",
@@ -143,8 +128,10 @@ const createTransaction = async (req, res) => {
 
   try {
     let transaction =
-      (await Order.findOne({ invoiceNumber: params.invoiceNumber })) || null;
+      (await Order.findOne({ transactionId: params.transId })) || null;
     const course = (await Course.findById(params.courseId)) || null;
+    const clientOrder =
+      (await Order.findOne({ invoiceNumber: params.invoiceNumber })) || null;
 
     if (transaction?.transactionId) {
       return res.status(404).json({
@@ -164,7 +151,7 @@ const createTransaction = async (req, res) => {
         errorCode: "10002",
       });
     }
-    if (course.price * 100 !== amount) {
+    if (course.price * 100 !== parseInt(amount)) {
       return res.status(400).json({
         serviceId: serviceId,
         timestamp: timestamp,
@@ -175,12 +162,12 @@ const createTransaction = async (req, res) => {
 
     let order;
 
-    if (!transaction) {
+    if (!clientOrder) {
       order = await Order.create({
         transactionId: transId,
         invoiceNumber: params.invoiceNumber,
         create_time: timestamp,
-        amount: amount,
+        amount: parseInt(amount),
         course_id: course._id,
         status: "ВЫСТАВЛЕНО",
         paymentType: "Uzum",
@@ -191,7 +178,7 @@ const createTransaction = async (req, res) => {
         {
           transactionId: transId,
           create_time: timestamp,
-          amount: amount,
+          amount: parseInt(amount),
           course_id: params.courseId,
           status: "ВЫСТАВЛЕНО",
           paymentType: "Uzum",
@@ -218,7 +205,7 @@ const createTransaction = async (req, res) => {
           value: order.invoiceNumber,
         },
       },
-      amount: amount,
+      amount: String(amount),
     });
   } catch (error) {
     console.log("Received error: ", error);
@@ -292,7 +279,7 @@ const confirmTransaction = async (req, res) => {
           value: order.invoiceNumber,
         },
       },
-      amount: order.amount,
+      amount: String(order.amount),
     });
   } catch (error) {
     console.log("Received error: ", error);
@@ -366,7 +353,7 @@ const reverseTransaction = async (req, res) => {
           value: order.invoiceNumber,
         },
       },
-      amount: order.amount,
+      amount: String(order.amount),
     });
   } catch (error) {
     console.log("Received error: ", error);
@@ -417,7 +404,7 @@ const checkTransactionStatus = async (req, res) => {
           value: order.invoiceNumber,
         },
       },
-      amount: order.amount,
+      amount: String(order.amount),
     });
   } catch (error) {
     console.log("Received error: ", error);
