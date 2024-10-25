@@ -57,17 +57,18 @@ if (req.body._postData === undefined) {
     const order = await Order.findOne({ invoiceNumber: merchant_trans_id });
     if (!order) {
       return res.status(400).json({
-        error: -5,
+        error: -9,
         error_note: "Order not found",
       });
     }
 
     if (order.amount !== amount) {
       return res.status(400).json({
-        error: -9,
+        error: -2,
         error_note: "Incorrect amount",
       });
     }
+    
 
     if (order.course_id.toString() !== param2) {
       return res.status(400).json({

@@ -5,11 +5,11 @@ const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.completePayment = async (req, res) => {
 
-  const _postData = req.body?.Request?._postData; 
-  if (!_postData) {
+  const _postData = req.body?._postData; 
+  if (_postData === undefined) {
     console.log("Missing required fields in _postData");
     return res.status(400).json({
-      error: -1,
+      error: -9,
       error_note: "Missing required fields in _postData",
     });
   }
@@ -47,12 +47,12 @@ exports.completePayment = async (req, res) => {
 
     const order = await Order.findOne({ invoiceNumber: merchant_trans_id });
     if (!order) {
-      return res.status(400).json({ error: -2, error_note: "Order not found" });
+      return res.status(400).json({ error: -9, error_note: "Order not found" });
     }
 
     if (amount !== order.amount) {
       return res.status(400).json({
-        error: -9,
+        error: -2,
         error_note: "Invalid amount",
       });
     }
@@ -67,10 +67,17 @@ exports.completePayment = async (req, res) => {
       });
     }
 
+    if( merchant_prepare_id === undefined  || null) {
+      return res.status(400).json({
+        error: -9,
+        error_note: "Missing merchant_prepare_id in _postData",
+      });
+    }
+
     if (merchant_prepare_id !== order._id.toString()) { 
       console.log("ll", merchant_prepare_id);
       return res.status(400).json({
-        error: -5,
+        error: -9,
         error_note: "Prepare ID does not match order ID",
       });
     }
