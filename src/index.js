@@ -29,7 +29,7 @@ dotenv.config();
 
 connectDB();
 
-// const app = express();
+const app = express();
 app.use(globalLimiter);
 
 app.use(
