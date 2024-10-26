@@ -44,9 +44,16 @@ exports.completePayment = async (req, res) => {
       });
     }
 
-    const order = await Order.findOne({ "course_id._id": merchant_trans_id });
+    const order = await Order.findOne({ invoiceNumber: merchant_trans_id });
     if (!order) {
       return res.status(400).json({ error: -9, error_note: "Order not found" });
+    }
+
+    if (amount !== order.amount) {
+      return res.status(400).json({
+        error: -2,
+        error_note: "Invalid amount",
+      });
     }
 
     if (order.status === "ОПЛАЧЕНО" && order.paymentType === "Click") {
@@ -76,7 +83,7 @@ exports.completePayment = async (req, res) => {
 
     if (error === 0) {
       await Order.findOneAndUpdate(
-        { "course_id._id": merchant_trans_id },
+        { invoiceNumber: merchant_trans_id },
         {
           status: "ОПЛАЧЕНО",
           paymentType: "Click",
