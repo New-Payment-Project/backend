@@ -39,7 +39,7 @@ exports.preparePayment = async (req, res) => {
       action === undefined ||
       sign_time === undefined ||
       sign_string === undefined ||
-      param2 === undefined
+      param2 === undefined 
     ) {
       console.log("Missing required fields");
       return res.status(400).json({
