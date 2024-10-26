@@ -11,9 +11,9 @@ const uzumAuthMiddleware = async (req, res, next) => {
   }
 
   const base64Credentials = authHeader.split(" ")[1];
-  const credentials = Buffer.from(base64Credentials, "base64").toString(
-    "ascii"
-  );
+
+  const credentials = Buffer.from(base64Credentials, "base64").toString("ascii");
+
   const [login, password] = credentials.split(":");
 
   try {
@@ -29,13 +29,12 @@ const uzumAuthMiddleware = async (req, res, next) => {
     }
 
     req.user = { login };
+
     next();
   } catch (error) {
     console.log(error);
-    res.status(500).json({ msg: "Server resposne error. Try again later" });
+    res.status(500).json({ message: "Server response error. Try again later" });
   }
-
-  next();
 };
 
 module.exports = uzumAuthMiddleware;

@@ -6,9 +6,9 @@ const mergeInvoicesAndOrders = async (req, res) => {
       {
         $lookup: {
           from: "orders", // Название коллекции orders
-          localField: "invoiceNumber", // Поле в invoices для связи
-          foreignField: "invoiceNumber", // Поле в orders для связи
-          as: "orderData", // Название массива для данных из orders
+          localField: "invoiceNumber",
+          foreignField: "invoiceNumber",
+          as: "orderData", 
         },
       },
       {

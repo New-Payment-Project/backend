@@ -10,7 +10,6 @@ const getOrders = async (req, res) => {
     res.status(500).json({ message: "Error getting orders", error: error.message });
   }
 };
-
 const getOrderById = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -25,7 +24,6 @@ const getOrderById = async (req, res) => {
     res.status(500).json({ message: "Error getting order", error: error.message });
   }
 };
-
 const createOrder = async (req, res) => {
   try {
     const {
@@ -68,7 +66,6 @@ const createOrder = async (req, res) => {
     });
 
     await newOrder.save();
-
     res.status(201).json({ message: "Order created", data: newOrder });
   } catch (error) {
     console.error("Error creating order:", error);

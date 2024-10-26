@@ -1,80 +1,116 @@
-const prepareService = require("../services/clickPrepService");
+const crypto = require("crypto");
+const Course = require("../models/courseModel");
 const Order = require("../models/orderModel");
+const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.preparePayment = async (req, res) => {
+  // console.log("Received body:", req.body);
+  
+  if (req.body === undefined) {
+    console.log("Missing required field body", req.body);
+    return res.status(400).json({
+      error: -1,
+      error_note: "request is empty",
+    });
+  }
+
   const {
     click_trans_id,
     service_id,
     click_paydoc_id,
-    error,
-    error_note,
-    merchant_trans_id,      
+    merchant_trans_id,
     amount,
     action,
     sign_time,
     sign_string,
+    error,
+    error_note,
+    param2
   } = req.body;
   try {
     if (
       click_trans_id === undefined ||
       service_id === undefined ||
-      click_paydoc_id === undefined ||
-      error === undefined ||
-      error_note === undefined ||
+      click_paydoc_id === undefined ||  
       merchant_trans_id === undefined ||
       amount === undefined ||
       action === undefined ||
       sign_time === undefined ||
-      sign_string === undefined
+      sign_string === undefined ||
+      param2 === undefined
     ) {
-      return res
-        .status(400)
-        .json({ error: -1, error_note: "Missing required fields" });
+      console.log("Missing required fields");
+      return res.status(400).json({
+        error: -1,
+        error_note: "Missing required fields",
+      });
+    }
+    console.log(typeof req.body.amount)
+
+    const course = await Course.findOne({ _id: param2 });
+    if (!course) {
+      return res.status(400).json({
+        error: -9,
+        error_note: "Course not found",
+      });
     }
 
-    const result = await prepareService.preparePayment({
-      click_trans_id,
-      service_id,
-      click_paydoc_id,
-      merchant_trans_id,
-      amount,
-      action,
-      error,
-      error_note,
-      sign_time,
-      sign_string,
+    const order = await Order.findOne({ invoiceNumber: merchant_trans_id });
+    if (!order) {
+      return res.status(400).json({
+        error: -9,
+        error_note: "Order not found",
+      });
+    }
+    
+    console.log("courses: ", typeof course.price)
+    if (course.price !== amount) {
+      return res.status(400).json({
+        error: -2,
+        error_note: "Incorrect amount",
+      });
+    }
+    
+
+    if (order.course_id.toString() !== param2) {
+      return res.status(400).json({
+        error: -9,
+        error_note: "Incorrect course",
+      });
+    }
+
+    const expectedSignString = crypto
+      .createHash("md5")
+      .update(
+        `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${amount}${action}${sign_time}`
+      )
+      .digest("hex");
+      console.log(expectedSignString)
+
+    if (sign_string !== expectedSignString) {
+      console.log("Invalid sign string");
+      return res.status(400).json({
+        error: -1,
+        error_note: "Invalid sign string",
+      });
+    }
+
+    const merchant_prepare_id = order._id;
+
+    return res.status(200).json({
+      result: {
+        click_trans_id,
+        merchant_trans_id,
+        merchant_prepare_id,
+        error: 0,
+        error_note: "Success",
+      },
     });
-
-    if (result.error) {
-      return res.status(400).json(result);
-    }
-
-    const newOrder = new Order({
-      transactionId: click_trans_id,
-      invoiceNumber: null,
-      create_time: Date.now(),
-      perform_time: null,
-      cancel_time: null,
-      amount: amount,
-      course_id: merchant_trans_id,
-      status: "ВЫСТАВЛЕНО",
-      system: "Click",
-    });
-
-    console.log("New order to be saved:", newOrder);
-
-    try {
-      const savedOrder = await newOrder.save();
-      console.log("Order saved successfully:", savedOrder);
-      return res.status(200).json({ result, order: savedOrder });
-    } catch (saveError) {
-      console.error("Error saving new order:", saveError);
-      return res
-        .status(500)
-        .json({ error: -3, error_note: "Failed to save order" });
-    }
   } catch (error) {
-    console.error("Error in preparePayment controller:", error);
-    return res.status(500).json({ error: -3, error_note: "Server error" });
+    console.error("Error in preparePayment:", error);
+    return res.status(500).json({
+      error: -3,
+      error_note: "Server error",
+    });
   }
 };
