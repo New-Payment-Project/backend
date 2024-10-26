@@ -99,7 +99,7 @@ exports.preparePayment = async (req, res) => {
       });
     }
 
-    const merchant_prepare_id = order._id;
+    const merchant_prepare_id = order.invoiceNumber;
     console.log('everything is ok', {
       click_trans_id,
       merchant_trans_id,
