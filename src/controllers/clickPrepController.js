@@ -30,6 +30,7 @@ exports.preparePayment = async (req, res) => {
     param2,
   } = req.body;
   try {
+    const numberAmount = Number(amount);
     if (
       click_trans_id === undefined ||
       service_id === undefined ||
@@ -65,7 +66,7 @@ exports.preparePayment = async (req, res) => {
       });
     }
 
-    if (course.price !== amount) {
+    if (course.price !== numberAmount) {
       return res.status(400).json({
         error: -2,
         error_note: "Incorrect amount",
