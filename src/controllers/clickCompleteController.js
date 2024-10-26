@@ -4,8 +4,7 @@ const { x } = require("pdfkit");
 const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.completePayment = async (req, res) => {
-
-  const _postData = req.body; 
+  const _postData = req.body;
   if (_postData === undefined) {
     console.log("Missing required fields in _postData");
     return res.status(400).json({
@@ -36,7 +35,7 @@ exports.completePayment = async (req, res) => {
       )
       .digest("hex");
 
-      console.log(`${calculatedSign}`)
+    console.log(`${calculatedSign}`);
 
     if (sign_string !== calculatedSign) {
       return res.status(400).json({
@@ -45,16 +44,9 @@ exports.completePayment = async (req, res) => {
       });
     }
 
-    const order = await Order.findOne({ invoiceNumber: merchant_trans_id });
+    const order = await Order.findOne({ "course_id._id": merchant_trans_id });
     if (!order) {
       return res.status(400).json({ error: -9, error_note: "Order not found" });
-    }
-
-    if (amount !== order.amount) {
-      return res.status(400).json({
-        error: -2,
-        error_note: "Invalid amount",
-      });
     }
 
     if (order.status === "ОПЛАЧЕНО" && order.paymentType === "Click") {
@@ -67,14 +59,14 @@ exports.completePayment = async (req, res) => {
       });
     }
 
-    if( merchant_prepare_id === undefined  || null) {
+    if (merchant_prepare_id === undefined || null) {
       return res.status(400).json({
         error: -9,
         error_note: "Missing merchant_prepare_id in _postData",
       });
     }
 
-    if (merchant_prepare_id !== order._id.toString()) { 
+    if (merchant_prepare_id !== order._id.toString()) {
       console.log("ll", merchant_prepare_id);
       return res.status(400).json({
         error: -9,
@@ -84,7 +76,7 @@ exports.completePayment = async (req, res) => {
 
     if (error === 0) {
       await Order.findOneAndUpdate(
-        { invoiceNumber: merchant_trans_id },
+        { "course_id._id": merchant_trans_id },
         {
           status: "ОПЛАЧЕНО",
           paymentType: "Click",
