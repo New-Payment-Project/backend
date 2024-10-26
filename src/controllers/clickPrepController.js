@@ -76,7 +76,7 @@ exports.preparePayment = async (req, res) => {
       });
     }
 
-    if (order.course_id.toString() !== param2) {
+    if (order.course_id.toString() !== param2) {  
       return res.status(400).json({
         error: -9,
         error_note: "Incorrect course",
@@ -100,6 +100,7 @@ exports.preparePayment = async (req, res) => {
     }
 
     const merchant_prepare_id = order._id;
+    console.log('everything is ok')
 
     return res.status(200).json({
       result: {
