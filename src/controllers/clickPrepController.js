@@ -14,6 +14,8 @@ exports.preparePayment = async (req, res) => {
     });
   }
 
+  console.log("body", req.body);
+
   const {
     click_trans_id,
     service_id,
