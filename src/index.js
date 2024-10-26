@@ -4,7 +4,8 @@ const connectDB = require("./config/database");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const { globalLimiter, loginLimiter } = require("./services/requestRateLimiter");
+const morgan = require('morgan');
+const { globalLimiter } = require("./services/requestRateLimiter");
 const authMiddleware = require("./middlware/auth");
 const uzumAuthMiddleware = require("./middlware/uzumAuthMiddleware");
 const pdfGenerateRoute = require("./routes/pdfGenerateRoute");
@@ -60,6 +61,7 @@ app.use(
 );
 
 app.set('trust proxy', 1);
+app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false })); //true
 
