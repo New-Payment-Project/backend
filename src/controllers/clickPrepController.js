@@ -62,8 +62,7 @@ exports.preparePayment = async (req, res) => {
         error_note: "Order not found",
       });
     }
-    
-    console.log("courses: ", typeof course.price)
+
     if (course.price !== amount) {
       return res.status(400).json({
         error: -2,
