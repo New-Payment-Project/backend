@@ -5,7 +5,7 @@ const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.preparePayment = async (req, res) => {
   // console.log("Received body:", req.body);
-  
+
   if (req.body === undefined) {
     console.log("Missing required field body", req.body);
     return res.status(400).json({
@@ -25,13 +25,13 @@ exports.preparePayment = async (req, res) => {
     sign_string,
     error,
     error_note,
-    param2
+    param2,
   } = req.body;
   try {
     if (
       click_trans_id === undefined ||
       service_id === undefined ||
-      click_paydoc_id === undefined ||  
+      click_paydoc_id === undefined ||
       merchant_trans_id === undefined ||
       amount === undefined ||
       action === undefined ||
@@ -45,9 +45,9 @@ exports.preparePayment = async (req, res) => {
         error_note: "Missing required fields",
       });
     }
-    console.log(typeof req.body.amount)
+    console.log(typeof req.body.amount);
 
-    const course = await Course.findOne({ _id: param2 });
+    const course = await Course.findOne({ _id: merchant_trans_id });
     if (!course) {
       return res.status(400).json({
         error: -9,
@@ -62,15 +62,13 @@ exports.preparePayment = async (req, res) => {
         error_note: "Order not found",
       });
     }
-    
-    console.log("courses: ", typeof course.price)
+
     if (course.price !== amount) {
       return res.status(400).json({
         error: -2,
         error_note: "Incorrect amount",
       });
     }
-    
 
     if (order.course_id.toString() !== param2) {
       return res.status(400).json({
@@ -85,7 +83,7 @@ exports.preparePayment = async (req, res) => {
         `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${amount}${action}${sign_time}`
       )
       .digest("hex");
-      console.log(expectedSignString)
+    console.log(expectedSignString);
 
     if (sign_string !== expectedSignString) {
       console.log("Invalid sign string");
