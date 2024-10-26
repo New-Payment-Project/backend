@@ -4,29 +4,13 @@ const Order = require("../models/orderModel");
 const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.preparePayment = async (req, res) => {
-  console.log("Received body:", req.body);
-
+  // console.log("Received body:", req.body);
+  
   if (req.body === undefined) {
-    console.log("Missing required fields in _postData field");
+    console.log("Missing required field body", req.body);
     return res.status(400).json({
       error: -1,
       error_note: "request is empty",
-    });
-  }
-
-  if (req._postData === undefined) {
-    console.log("Missing required fields in _postData field");
-    return res.status(400).json({
-      error: -1,
-      error_note: "request _postData is empty",
-    });
-  }
-
-  if (req.body._postData === undefined) {
-    console.log("Missing required fields in _postData field");
-    return res.status(400).json({
-      error: -1,
-      error_note: "_postData is empty",
     });
   }
 
@@ -42,7 +26,7 @@ exports.preparePayment = async (req, res) => {
     error,
     error_note,
     param2
-  } = req.body?._postData;
+  } = req.body;
   try {
     if (
       click_trans_id === undefined ||
@@ -61,6 +45,7 @@ exports.preparePayment = async (req, res) => {
         error_note: "Missing required fields",
       });
     }
+    console.log(typeof req.body.amount)
 
     const course = await Course.findOne({ _id: param2 });
     if (!course) {
@@ -78,7 +63,7 @@ exports.preparePayment = async (req, res) => {
       });
     }
 
-    if (order.amount !== amount) {
+    if (course.price !== amount) {
       return res.status(400).json({
         error: -2,
         error_note: "Incorrect amount",
