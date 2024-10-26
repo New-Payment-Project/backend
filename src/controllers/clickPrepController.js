@@ -99,7 +99,7 @@ exports.preparePayment = async (req, res) => {
       });
     }
 
-    const merchant_prepare_id = order.create_time;
+    const merchant_prepare_id = order._id;
     console.log('everything is ok', {
       click_trans_id,
       merchant_trans_id,
@@ -110,13 +110,13 @@ exports.preparePayment = async (req, res) => {
     
 
     return res.status(200).json({
-      result: {
+      result: [{
         click_trans_id,
         merchant_trans_id,
         merchant_prepare_id,
         error: 0,
         error_note: "Success",
-      },
+      }]
     });
   } catch (error) {
     console.error("Error in preparePayment:", error);
