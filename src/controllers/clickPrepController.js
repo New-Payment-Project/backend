@@ -30,7 +30,6 @@ exports.preparePayment = async (req, res) => {
     param2,
   } = req.body;
   try {
-    const numberAmount = Number(amount);
     if (
       click_trans_id === undefined ||
       service_id === undefined ||
@@ -48,7 +47,8 @@ exports.preparePayment = async (req, res) => {
         error_note: "Missing required fields",
       });
     }
-    console.log(typeof req.body.amount);
+    const numberAmount = Number(amount);
+    console.log("Number amount: " + typeof numberAmount)
 
     const course = await Course.findById({ _id: param2 });
     if (!course) {
@@ -83,7 +83,7 @@ exports.preparePayment = async (req, res) => {
     const expectedSignString = crypto
       .createHash("md5")
       .update(
-        `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${amount}${action}${sign_time}`
+        `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${numberAmount}${action}${sign_time}`
       )
       .digest("hex");
     console.log(expectedSignString);
