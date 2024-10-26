@@ -112,23 +112,24 @@ exports.preparePayment = async (req, res) => {
     }
 
     const merchant_prepare_id = order._id;
-    console.log("Transaction prepared successfully:", {
+    // console.log("Transaction prepared successfully:", {
+    //   click_trans_id,
+    //   merchant_trans_id,
+    //   merchant_prepare_id,
+    //   error: 0,
+    //   error_note: "Success",
+    // });
+    
+    const result = [{
       click_trans_id,
       merchant_trans_id,
       merchant_prepare_id,
       error: 0,
       error_note: "Success",
-    });
-  
-    return res.status(200).json({
-      result: [{
-        click_trans_id,
-        merchant_trans_id,
-        merchant_prepare_id,
-        error: 0,
-        error_note: "Success",
-      }]
-    });
+    }]
+    console.log("result", result)
+
+    return res.status(200).json({result});
   } catch (error) {
     console.error("Error in preparePayment:", error);
     return res.status(500).json({
