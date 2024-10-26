@@ -52,6 +52,7 @@ exports.preparePayment = async (req, res) => {
 
     const course = await Course.findById({ _id: param2 });
     if (!course) {
+      console.log("No course");
       return res.status(400).json({
         error: -9,
         error_note: "Course not found",
@@ -60,6 +61,7 @@ exports.preparePayment = async (req, res) => {
 
     const order = await Order.findOne({ invoiceNumber: merchant_trans_id });
     if (!order) {
+      console.log("No order");
       return res.status(400).json({
         error: -9,
         error_note: "Order not found",
@@ -67,6 +69,7 @@ exports.preparePayment = async (req, res) => {
     }
 
     if (course.price !== numberAmount) {
+      console.log("incorrect amount");
       return res.status(400).json({
         error: -2,
         error_note: "Incorrect amount",
