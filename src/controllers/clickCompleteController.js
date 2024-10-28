@@ -12,6 +12,9 @@ exports.completePayment = async (req, res) => {
       error_note: "Missing required fields in _postData",
     });
   }
+
+  console.log(req.body)
+
   const {
     click_trans_id,
     service_id,
@@ -28,25 +31,24 @@ exports.completePayment = async (req, res) => {
   } = _postData;
 
   try {
-    // const calculatedSign = crypto
-    //   .createHash("md5")
-    //   .update(
-    //     `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${amount}${action}${sign_time}`
-    //   )
-    //   .digest("hex");
+    const calculatedSign = crypto
+      .createHash("md5")
+      .update(
+        `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${amount}${action}${sign_time}`
+      )
+      .digest("hex");
 
-    
-    // console.log(click_trans_id, service_id, SECRET_KEY, merchant_trans_id, amount, action, sign_time)
+    console.log(click_trans_id, service_id, SECRET_KEY, merchant_trans_id, amount, action, sign_time)
 
-    // if (sign_string !== calculatedSign) {
-    //   return res.status(400).json({
-    //     error: -1,
-    //     error_note: "Invalid sign string",
-    //   });
-    // }
+    if (sign_string !== calculatedSign) {
+      return res.status(400).json({
+        error: -1,
+        error_note: "Invalid sign string",
+      });
+    }
 
-    // console.log(`${calculatedSign}`);
-    // console.log(`${sign_string}`);
+    console.log(`${calculatedSign}`);
+    console.log(`${sign_string}`);
 
     const order = await Order.findOne({ invoiceNumber: merchant_trans_id });
     if (!order) {
