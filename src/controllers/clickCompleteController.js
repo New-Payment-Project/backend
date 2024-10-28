@@ -39,23 +39,26 @@ exports.completePayment = async (req, res) => {
       .digest("hex");
 
     console.log(click_trans_id, service_id, SECRET_KEY, merchant_trans_id, amount, action, sign_time)
+    console.log(`${sign_string}`);
+    console.log(`${calculatedSign}`);
 
     if (sign_string !== calculatedSign) {
+      console.log("Invalid sign string");
       return res.status(400).json({
         error: -1,
         error_note: "Invalid sign string",
       });
     }
 
-    console.log(`${calculatedSign}`);
-    console.log(`${sign_string}`);
 
     const order = await Order.findOne({ invoiceNumber: merchant_trans_id });
     if (!order) {
+      console.log("No order");
       return res.status(400).json({ error: -9, error_note: "Order not found" });
     }
 
     if (amount !== order.amount) {
+      console.log("Invalid amount");
       return res.status(400).json({
         error: -2,
         error_note: "Invalid amount",
@@ -63,6 +66,7 @@ exports.completePayment = async (req, res) => {
     }
 
     if (order.status === "ОПЛАЧЕНО" && order.paymentType === "Click") {
+      console.log("Payment already performed");
       return res.status(200).json({
         click_trans_id,
         merchant_trans_id,
@@ -73,6 +77,7 @@ exports.completePayment = async (req, res) => {
     }
 
     if (merchant_prepare_id === undefined || null) {
+      console.log("Missing merchant_prepare_id in _postData");
       return res.status(400).json({
         error: -9,
         error_note: "Missing merchant_prepare_id in _postData",
@@ -80,7 +85,7 @@ exports.completePayment = async (req, res) => {
     }
 
     if (merchant_prepare_id !== order._id.toString()) {
-      console.log("ll", merchant_prepare_id);
+      console.log("prepare", merchant_prepare_id);
       return res.status(400).json({
         error: -9,
         error_note: "Prepare ID does not match order ID",
@@ -97,6 +102,8 @@ exports.completePayment = async (req, res) => {
         },
         { new: true }
       );
+
+      console.log("success")
 
       return res.status(200).json({
         click_trans_id,
