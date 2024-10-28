@@ -34,7 +34,7 @@ exports.completePayment = async (req, res) => {
     const calculatedSign = crypto
       .createHash("md5")
       .update(
-        `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${amount}${action}${sign_time}`
+        `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${merchant_prepare_id}${amount}${action}${sign_time}`
       )
       .digest("hex");
 
