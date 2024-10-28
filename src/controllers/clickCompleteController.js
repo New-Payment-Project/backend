@@ -97,13 +97,18 @@ exports.completePayment = async (req, res) => {
 
     if (error === 0) {
       await Order.findOneAndUpdate(
-        { invoiceNumber: merchant_trans_id },
+        { invoiceNumber: parseInt(merchant_trans_id) },
         {
           status: "ОПЛАЧЕНО",
           paymentType: "Click",
           perform_time: Date.now(),
         },
         { new: true }
+      );
+
+      await Invoice.findOneAndUpdate(
+        { invoiceNumber: parseInt(merchant_trans_id) },
+        { status: "ОПЛАЧЕНО" }
       );
 
       console.log("success")
