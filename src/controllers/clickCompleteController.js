@@ -57,6 +57,9 @@ exports.completePayment = async (req, res) => {
       return res.status(400).json({ error: -9, error_note: "Order not found" });
     }
 
+
+    console.log("Amount chumbils", typeof amount, typeof order.amount)
+
     if (amount !== order.amount) {
       console.log("Invalid amount");
       return res.status(400).json({
