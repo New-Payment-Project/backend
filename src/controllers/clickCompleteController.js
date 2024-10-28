@@ -95,7 +95,10 @@ exports.completePayment = async (req, res) => {
       });
     }
 
-    if (error === 0) {
+    console.log(typeof error);
+    
+
+    if (parseInt(error) === 0) {
       await Order.findOneAndUpdate(
         { invoiceNumber: parseInt(merchant_trans_id) },
         {
