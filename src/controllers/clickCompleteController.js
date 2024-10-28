@@ -60,7 +60,7 @@ exports.completePayment = async (req, res) => {
 
     console.log("Amount chumbils", typeof amount, typeof order.amount)
 
-    if (amount !== order.amount) {
+    if (amount !== String(order.amount)) {
       console.log("Invalid amount");
       return res.status(400).json({
         error: -2,
