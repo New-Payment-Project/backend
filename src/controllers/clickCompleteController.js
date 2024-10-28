@@ -100,7 +100,7 @@ exports.completePayment = async (req, res) => {
 
     if (parseInt(error) === 0) {
       await Order.findOneAndUpdate(
-        { invoiceNumber: parseInt(merchant_trans_id) },
+        { invoiceNumber: String(merchant_trans_id) },
         {
           status: "ОПЛАЧЕНО",
           paymentType: "Click",
@@ -110,7 +110,7 @@ exports.completePayment = async (req, res) => {
       );
 
       await Invoice.findOneAndUpdate(
-        { invoiceNumber: parseInt(merchant_trans_id) },
+        { invoiceNumber: String(merchant_trans_id) },
         { status: "ОПЛАЧЕНО" }
       );
 
