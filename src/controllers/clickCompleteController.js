@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 const Order = require("../models/orderModel");
-const { x } = require("pdfkit");
+const Invoice = require("../models/invoiceModel");
 const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.completePayment = async (req, res) => {
