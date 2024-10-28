@@ -4,17 +4,17 @@ const Order = require("../models/orderModel");
 const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.preparePayment = async (req, res) => {
-  console.log("Received request with body:", req.body);
+  
 
   if (req.body === undefined) {
-    console.log("Error: Missing required field body", req.body);
+    console.log("Missing required field body", req.body);
     return res.status(400).json({
       error: -1,
-      error_note: "Request is empty",
+      error_note: "request is empty",
     });
   }
 
-  console.log("Request body content:", req.body);
+  console.log("body", req.body);
 
   const {
     click_trans_id,
@@ -29,9 +29,7 @@ exports.preparePayment = async (req, res) => {
     error_note,
     param2,
   } = req.body;
-  
   try {
-    // Check for required fields
     if (
       click_trans_id === undefined ||
       service_id === undefined ||
@@ -43,68 +41,58 @@ exports.preparePayment = async (req, res) => {
       sign_string === undefined ||
       param2 === undefined
     ) {
-      console.log("Error: Missing required fields in request body");
+      console.log("Missing required fields");
       return res.status(400).json({
         error: -1,
         error_note: "Missing required fields",
       });
     }
-    
     const numberAmount = Number(amount);
-    console.log("Parsed amount (as Number):", numberAmount, "Type:", typeof numberAmount);
+    console.log("Number amount: " + typeof numberAmount)
 
-    // Find course by ID
     const course = await Course.findById({ _id: param2 });
     if (!course) {
-      console.log("Error: Course not found for param2:", param2);
+      console.log("No course");
       return res.status(400).json({
         error: -9,
         error_note: "Course not found",
       });
     }
-    console.log("Course found:", course);
 
-    // Find order by invoice number
     const order = await Order.findOne({ invoiceNumber: merchant_trans_id });
     if (!order) {
-      console.log("Error: Order not found for merchant_trans_id:", merchant_trans_id);
+      console.log("No order");
       return res.status(400).json({
         error: -9,
         error_note: "Order not found",
       });
     }
-    console.log("Order found:", order);
 
-    // Check if amount matches course price
     if (course.price !== numberAmount) {
-      console.log("Error: Incorrect amount. Expected:", course.price, "Received:", numberAmount);
+      console.log("incorrect amount");
       return res.status(400).json({
         error: -2,
         error_note: "Incorrect amount",
       });
     }
 
-    // Validate if the course ID matches
-    if (order.course_id.toString() !== param2) {
-      console.log("Error: Incorrect course. Order course_id:", order.course_id, "param2:", param2);
+    if (order.course_id.toString() !== param2) {  
       return res.status(400).json({
         error: -9,
         error_note: "Incorrect course",
       });
     }
 
-    // Generate expected sign string
     const expectedSignString = crypto
       .createHash("md5")
       .update(
         `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${numberAmount}${action}${sign_time}`
       )
       .digest("hex");
-    console.log("Generated expected sign string:", expectedSignString);
+    console.log(expectedSignString);
 
-    // Compare sign strings
     if (sign_string !== expectedSignString) {
-      console.log("Error: Invalid sign string. Received:", sign_string, "Expected:", expectedSignString);
+      console.log("Invalid sign string");
       return res.status(400).json({
         error: -1,
         error_note: "Invalid sign string",
@@ -112,24 +100,14 @@ exports.preparePayment = async (req, res) => {
     }
 
     const merchant_prepare_id = order._id;
-    // console.log("Transaction prepared successfully:", {
-    //   click_trans_id,
-    //   merchant_trans_id,
-    //   merchant_prepare_id,
-    //   error: 0,
-    //   error_note: "Success",
-    // });
-    
-    const result = [{
+  
+    return res.status(200).json({
       click_trans_id,
       merchant_trans_id,
       merchant_prepare_id,
       error: 0,
       error_note: "Success",
-    }]
-    console.log("result", result)
-
-    return res.status(200).json({result});
+  });
   } catch (error) {
     console.error("Error in preparePayment:", error);
     return res.status(500).json({
