@@ -36,6 +36,7 @@ exports.completePayment = async (req, res) => {
       .digest("hex");
 
     console.log(`${calculatedSign}`);
+    console.log(click_trans_id, service_id, SECRET_KEY, merchant_trans_id, amount, action, sign_time)
 
     if (sign_string !== calculatedSign) {
       return res.status(400).json({
