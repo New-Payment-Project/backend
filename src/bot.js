@@ -6,14 +6,14 @@ const sendOrderToBot = (orderData) => {
   console.log("Sending order data:", orderData);
 
   const message = `
-    Заказ ${orderData.course_id?.prefix || ""}${orderData.invoiceNumber}:
-    Курс: ${orderData.courseTitle}
-    👤 Клиент: ${orderData.clientName}
-    Телефон: ${orderData.clientPhone}
-    ТГ Username: ${orderData.tgUsername || "не указан"}
-    Статус: ${orderData.status}
+    🧾 Заказ ${orderData.course_id?.prefix || ""}${orderData.invoiceNumber}:
+    🔸 Курс: ${orderData.courseTitle}
+    🔸 Клиент: ${orderData.clientName}
+    🔸 Телефон: ${orderData.clientPhone}
+    🔸 ТГ Username: ${orderData.tgUsername || "Kiritilmagan"}
+    🔷 Статус: ${orderData.status}
 
-    Сумма: ${orderData.amount || "не указан"}
+    🇺🇿 Сумма: ${orderData.amount || "не указан"} сум
   `;
 
   bot
