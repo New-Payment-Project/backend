@@ -18,8 +18,8 @@ function formatInvoiceNumber(number) {
 }
 
 const createInvoice = async (req, res) => {
-  const { clientName, clientAddress, clientPhone, tgUsername, passport } =
-    req.body;
+  const { clientName, clientPhone, tgUsername } = req.body;
+  console.log(req.body);
 
   try {
     const sequenceNumber = await getNextSequenceValue("invoiceNumber");
@@ -28,20 +28,16 @@ const createInvoice = async (req, res) => {
     const invoice = new Invoice({
       invoiceNumber,
       clientName,
-      clientAddress,
       clientPhone,
       status: "ВЫСТАВЛЕНО",
       tgUsername,
-      passport,
     });
-
-    const updatedOrder = await Orders.findOne({
-      invoiceNumber: transaction.invoiceNumber,
-    });
-    sendOrderToBot(updatedOrder);
 
     const newInvoice = await invoice.save();
     res.status(201).json(newInvoice);
+
+    // const updatedOrder = await Orders.findOne({ invoiceNumber: invoiceNumber });
+    // sendOrderToBot(updatedOrder);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

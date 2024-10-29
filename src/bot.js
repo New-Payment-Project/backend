@@ -1,10 +1,10 @@
 const TelegramBot = require("node-telegram-bot-api");
-const token = process.env.TG_BOT_TOKEN;
-const bot = new TelegramBot(token, { polling: true });
+const token = "7230758974:AAEUk-Vf46omoACp-lfm6mZmCMc1qkDp9_o";
+const bot = new TelegramBot(token, { polling: false });
 
 const sendOrderToBot = (orderData) => {
   const message = `
-    Заказ ${orderData.prefix}${orderData.invoiceNumber}:
+    Заказ ${orderData.invoiceNumber}:
     Клиент: ${orderData.clientName}
     Телефон: ${orderData.clientPhone}
     Адрес: ${orderData.clientAddress || "не указан"}
