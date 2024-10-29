@@ -4,7 +4,7 @@ const Order = require("../models/orderModel");
 const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.preparePayment = async (req, res) => {
-  // console.log("Received body:", req.body);
+  
 
   if (req.body === undefined) {
     console.log("Missing required field body", req.body);
@@ -13,6 +13,8 @@ exports.preparePayment = async (req, res) => {
       error_note: "request is empty",
     });
   }
+
+  console.log("body", req.body);
 
   const {
     click_trans_id,
@@ -45,10 +47,12 @@ exports.preparePayment = async (req, res) => {
         error_note: "Missing required fields",
       });
     }
-    console.log(typeof req.body.amount);
+    const numberAmount = Number(amount);
+    console.log("Number amount: " + typeof numberAmount)
 
-    const course = await Course.findOne({ _id: merchant_trans_id });
+    const course = await Course.findById({ _id: param2 });
     if (!course) {
+      console.log("No course");
       return res.status(400).json({
         error: -9,
         error_note: "Course not found",
@@ -57,20 +61,22 @@ exports.preparePayment = async (req, res) => {
 
     const order = await Order.findOne({ invoiceNumber: merchant_trans_id });
     if (!order) {
+      console.log("No order");
       return res.status(400).json({
         error: -9,
         error_note: "Order not found",
       });
     }
 
-    if (course.price !== amount) {
+    if (course.price !== numberAmount) {
+      console.log("incorrect amount");
       return res.status(400).json({
         error: -2,
         error_note: "Incorrect amount",
       });
     }
 
-    if (order.course_id.toString() !== param2) {
+    if (order.course_id.toString() !== param2) {  
       return res.status(400).json({
         error: -9,
         error_note: "Incorrect course",
@@ -80,7 +86,7 @@ exports.preparePayment = async (req, res) => {
     const expectedSignString = crypto
       .createHash("md5")
       .update(
-        `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${amount}${action}${sign_time}`
+        `${click_trans_id}${service_id}${SECRET_KEY}${merchant_trans_id}${numberAmount}${action}${sign_time}`
       )
       .digest("hex");
     console.log(expectedSignString);
@@ -94,16 +100,14 @@ exports.preparePayment = async (req, res) => {
     }
 
     const merchant_prepare_id = order._id;
-
+  
     return res.status(200).json({
-      result: {
-        click_trans_id,
-        merchant_trans_id,
-        merchant_prepare_id,
-        error: 0,
-        error_note: "Success",
-      },
-    });
+      click_trans_id,
+      merchant_trans_id,
+      merchant_prepare_id,
+      error: 0,
+      error_note: "Success",
+  });
   } catch (error) {
     console.error("Error in preparePayment:", error);
     return res.status(500).json({
