@@ -36,10 +36,35 @@ const createInvoice = async (req, res) => {
     const newInvoice = await invoice.save();
     res.status(201).json(newInvoice);
 
-    // const updatedOrder = await Orders.findOne({ invoiceNumber: invoiceNumber });
-    // sendOrderToBot(updatedOrder);
+    let retries = 5;
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    while (retries > 0) {
+      const updatedOrder = await Orders.findOne({ invoiceNumber }).populate(
+        "course_id"
+      ); 
+
+      if (updatedOrder) {
+        console.log("Order found, sending to bot:", updatedOrder);
+        sendOrderToBot(updatedOrder);
+        break;
+      }
+
+      await delay(1000); 
+      retries--;
+    }
+
+    if (retries === 0) {
+      console.warn(
+        `Order with invoiceNumber ${invoiceNumber} not found after retries`
+      );
+    }
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    console.error("Error creating invoice:", err.message);
+
+    if (!res.headersSent) {
+      res.status(400).json({ message: err.message });
+    }
   }
 };
 

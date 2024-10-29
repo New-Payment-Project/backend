@@ -340,10 +340,6 @@ const performTransaction = async (req, res) => {
     }
 
     if (transaction.state === 2) {
-    //   const updatedOrder = await Orders.findOne({
-    //     invoiceNumber: transaction.invoiceNumber,
-    //   });
-    //   sendOrderToBot(updatedOrder);
       return res.json({
         jsonrpc: "2.0",
         id: req.body.id,
@@ -365,6 +361,10 @@ const performTransaction = async (req, res) => {
       { invoiceNumber: transaction.invoiceNumber },
       { status: "ОПЛАЧЕНО" }
     );
+    const updatedOrder = await Orders.findOne({
+      invoiceNumber: transaction.invoiceNumber,
+    });
+    sendOrderToBot(updatedOrder);
 
     await Invoice.findOneAndUpdate(
       { invoiceNumber: transaction.invoiceNumber },
