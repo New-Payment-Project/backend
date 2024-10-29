@@ -23,5 +23,4 @@ const sendOrderToBot = (orderData) => {
       console.error("Error sending message to bot:", error.message);
     });
 };
-
 module.exports = { bot, sendOrderToBot };
