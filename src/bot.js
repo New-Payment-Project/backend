@@ -26,7 +26,7 @@ const sendOrderToBot = (orderData) => {
     🔸 Курс: ${orderData.courseTitle}
     🔸 Клиент: ${orderData.clientName}
     🔸 Телефон: ${orderData.clientPhone}    
-    🔸 ТГ Username: ${orderData.tgUsername || "Kiritilmagan"}
+    🔸 Телеграм: ${orderData.tgUsername || "Kiritilmagan"}
     ${statusSticker} Статус: ${orderData.status}
 
     🇺🇿 Сумма: ${formattedAmount} сум
