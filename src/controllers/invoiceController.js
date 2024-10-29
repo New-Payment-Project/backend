@@ -1,83 +1,91 @@
-const Invoice = require('../models/invoiceModel');
-const Course = require('../models/courseModel');
-const Counter = require('../models/counterModel');
+const Invoice = require("../models/invoiceModel");
+const Course = require("../models/courseModel");
+const Counter = require("../models/counterModel");
+const Orders = require("../models/orderModel");
+const { sendOrderToBot } = require("../bot");
 
 async function getNextSequenceValue(sequenceName) {
-    const sequenceDocument = await Counter.findByIdAndUpdate(
-        { _id: sequenceName },
-        { $inc: { sequence_value: 1 } },
-        { new: true, upsert: true }
-    );
-    return sequenceDocument.sequence_value;
+  const sequenceDocument = await Counter.findByIdAndUpdate(
+    { _id: sequenceName },
+    { $inc: { sequence_value: 1 } },
+    { new: true, upsert: true }
+  );
+  return sequenceDocument.sequence_value;
 }
 
 function formatInvoiceNumber(number) {
-    return String(number).padStart(5, '0');
+  return String(number).padStart(5, "0");
 }
 
 const createInvoice = async (req, res) => {
-    const { clientName, clientAddress, clientPhone, tgUsername, passport } = req.body;
+  const { clientName, clientAddress, clientPhone, tgUsername, passport } =
+    req.body;
 
-    try {
-        const sequenceNumber = await getNextSequenceValue('invoiceNumber');
-        const invoiceNumber = formatInvoiceNumber(sequenceNumber);
+  try {
+    const sequenceNumber = await getNextSequenceValue("invoiceNumber");
+    const invoiceNumber = formatInvoiceNumber(sequenceNumber);
 
-        const invoice = new Invoice({
-            invoiceNumber,
-            clientName,
-            clientAddress,
-            clientPhone,
-            status: 'ВЫСТАВЛЕНО',
-            tgUsername,
-            passport
-        });
+    const invoice = new Invoice({
+      invoiceNumber,
+      clientName,
+      clientAddress,
+      clientPhone,
+      status: "ВЫСТАВЛЕНО",
+      tgUsername,
+      passport,
+    });
 
-        const newInvoice = await invoice.save();
-        res.status(201).json(newInvoice);
-    } catch (err) {
-        res.status(400).json({ message: err.message });
-    }
+    const updatedOrder = await Orders.findOne({
+      invoiceNumber: transaction.invoiceNumber,
+    });
+    sendOrderToBot(updatedOrder);
+
+    const newInvoice = await invoice.save();
+    res.status(201).json(newInvoice);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
 };
 
 const getInvoices = async (req, res) => {
-    try {
-        const invoices = await Invoice.find();
-        res.json(invoices);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+  try {
+    const invoices = await Invoice.find();
+    res.json(invoices);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
 const getInvoiceById = async (req, res) => {
-    try {
-        const invoice = await Invoice.findById(req.params.id);
-        if (!invoice) {
-            return res.status(404).json({ message: 'Invoice not found' });
-        }
-        res.status(200).json(invoice);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+  try {
+    const invoice = await Invoice.findById(req.params.id);
+    if (!invoice) {
+      return res.status(404).json({ message: "Invoice not found" });
     }
+    res.status(200).json(invoice);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
 const deleteInvoiceById = async (req, res) => {
-    try {
-        const invoice = await Invoice.findById(req.params.id);
+  try {
+    const invoice = await Invoice.findById(req.params.id);
 
-        if (!invoice) {
-            return res.status(404).json({ message: 'Invoice not found' });
-        }
-
-        await invoice.remove();
-        res.status(200).json({ message: 'Invoice deleted successfully' });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    if (!invoice) {
+      return res.status(404).json({ message: "Invoice not found" });
     }
+
+    await invoice.remove();
+    res.status(200).json({ message: "Invoice deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };
 
 module.exports = {
-    createInvoice,
-    getInvoices,
-    getInvoiceById,
-    deleteInvoiceById
+  createInvoice,
+  getInvoices,
+  getInvoiceById,
+  deleteInvoiceById,
 };
