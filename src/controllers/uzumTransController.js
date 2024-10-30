@@ -6,6 +6,7 @@ const Course = require("../models/courseModel");
 const Invoice = require("../models/invoiceModel");
 const User = require("../models/userModel");
 const { sendOrderToBot } = require("../bot");
+const { syncOrderWithAmoCRM } = require('../services/amocrmServices')
 
 const realServiceId = 498614016;
 
@@ -271,6 +272,7 @@ const confirmTransaction = async (req, res) => {
       invoiceNumber: order.invoiceNumber,
     }).populate("course_id");
     sendOrderToBot(updatedOrder);
+    await syncOrderWithAmoCRM(updatedOrder);
 
     res.status(200).json({
       serviceId: serviceId,

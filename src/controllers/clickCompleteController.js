@@ -3,6 +3,7 @@ const Order = require("../models/orderModel");
 const Invoice = require("../models/invoiceModel");
 const { sendOrderToBot } = require("../bot");
 const SECRET_KEY = process.env.CLICK_SECRET_KEY;
+const { syncOrderWithAmoCRM } = require('../services/amocrmServices')
 
 exports.completePayment = async (req, res) => {
   const _postData = req.body;
@@ -124,6 +125,7 @@ exports.completePayment = async (req, res) => {
         invoiceNumber: String(merchant_trans_id),
       }).populate("course_id");
       sendOrderToBot(updatedOrder);
+      await syncOrderWithAmoCRM(updatedOrder);
 
       console.log("success");
 
