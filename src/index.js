@@ -61,16 +61,16 @@ app.use(
 );
 
 app.set('trust proxy', 1);
-app.use(morgan('dev'));
+app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false })); //true
 
 app.use("/", paymentRoutes);
 app.use("/", generateClickUrl);
 app.use("/api/v1/uzum-bank", uzumAuthMiddleware, uzumBankRoutes);
-app.use("/api/v1", courseRoutes);
-app.use("/api/v1", invoiceRoutes);
-app.use("/api/v1", orderRoutes);
+app.use("/api/v1", authMiddleware, courseRoutes);
+app.use("/api/v1", authMiddleware, invoiceRoutes);
+app.use("/api/v1", authMiddleware, orderRoutes);
 app.use("/api/v1/counter", counterRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
@@ -81,7 +81,7 @@ app.use("/api/v1/click", clickCompleteRoutes);
 app.use("/api/v1", pdfGenerateRoute);
 app.use('/contracts', express.static(path.join(__dirname, 'contracts')));
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
