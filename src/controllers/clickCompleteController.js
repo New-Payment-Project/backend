@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const Order = require("../models/orderModel");
 const Invoice = require("../models/invoiceModel");
-const { sendOrderToBot } = require("../bot");
+const { updateOrderStatus } = require("../bot");
 const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 const { syncOrderWithAmoCRM } = require('../controllers/orderController')
 
@@ -124,7 +124,7 @@ exports.completePayment = async (req, res) => {
       const updatedOrder = await Order.findOne({
         invoiceNumber: String(merchant_trans_id),
       }).populate("course_id");
-      sendOrderToBot(updatedOrder);
+      updateOrderStatus(updatedOrder);
       await syncOrderWithAmoCRM(updatedOrder);
 
       console.log("success");
