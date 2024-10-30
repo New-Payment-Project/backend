@@ -44,9 +44,9 @@ const createOrder = async (req, res) => {
       passport,
       tgUsername,
       courseTitle,
-      prefix
+      prefix,
+      paymentType
     } = req.body;
-
 
     const newOrder = new Order({
       transactionId,
@@ -66,7 +66,8 @@ const createOrder = async (req, res) => {
       prefix,
       courseTitle,
       reason: null,
-      status: status || 'НЕ ОПЛАЧЕНО'
+      status: status || 'НЕ ОПЛАЧЕНО',
+      paymentType
     });
 
     await newOrder.save();
@@ -87,11 +88,14 @@ const syncOrderWithAmoCRM = async (order) => {
     const phone = order.clientPhone;
     const invoiceNumber = order.invoiceNumber;
 
+    // Разделяем сумму на 100, если платежный тип не "Click"
+    const amount = order.paymentType !== "Click" ? order.amount / 100 : order.amount;
+
     const statusMapping = {
       "ВЫСТАВЛЕНО": 71258234,
-      "ОПЛАЧЕНО": 71258222, 
-      "ОТМЕНЕНО": 71258226, 
-      "НЕ ОПЛАЧЕНО": 71258230 
+      "ОПЛАЧЕНО": 71258222,
+      "ОТМЕНЕНО": 71258226,
+      "НЕ ОПЛАЧЕНО": 71258230
     };
 
     const statusId = statusMapping[order.status] || 71258234;
@@ -107,7 +111,7 @@ const syncOrderWithAmoCRM = async (order) => {
     const dealData = {
       "pipeline_id": 8812830,
       "name": dealName,
-      "price": order.amount,
+      "price": amount,  // Используем скорректированную сумму
       "status_id": statusId,
       "custom_fields_values": [
         { "field_id": 1623197, "values": [{ "value": order.clientName }] },
@@ -115,7 +119,7 @@ const syncOrderWithAmoCRM = async (order) => {
         { "field_id": 1628267, "values": [{ "value": order.tgUsername || 'нет' }] },
         { "field_id": 1628269, "values": [{ "value": order.courseTitle }] },
         { "field_id": 1628271, "values": [{ "value": order.status }] },
-        { "field_id": 1628273, "values": [{ "value": order.invoiceNumber }]}
+        { "field_id": 1628273, "values": [{ "value": order.invoiceNumber }] }
       ]
     };
 
