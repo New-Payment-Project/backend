@@ -32,7 +32,7 @@ jobs:
             cd /var/www/course-server &&
             git pull --rebase origin main &&
             npm install &&
-            pm2 restart all &&
             npm run bot &&
+            pm2 restart all &&
             pm2 save
           "
