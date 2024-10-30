@@ -94,7 +94,7 @@ const findDealByPhone = async (phone) => {
       }
     });
 
-    console.log('Результат поиска сделок:', JSON.stringify(response.data, null, 2));
+    // console.log('Результат поиска сделок:', JSON.stringify(response.data, null, 2));
     return response.data._embedded ? response.data._embedded.leads : [];
   } catch (error) {
     console.error('Error searching for deal:', error.response ? error.response.data : error.message);
