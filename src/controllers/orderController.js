@@ -4,11 +4,6 @@ const amocrmService = require("../services/amocrmServices");
 const getOrders = async (req, res) => {
   try {
     const orders = await Order.find().populate("course_id");
-    for (const order of orders) {
-      if (order.status === 'ОПЛАЧЕНО') {
-        await syncOrderWithAmoCRM(order);
-      }
-    }
     res.status(200).json({ data: orders });
   } catch (error) {
     console.error("Error getting orders:", error);
@@ -23,10 +18,6 @@ const getOrderById = async (req, res) => {
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
-    }
-
-    if (order.status === 'ОПЛАЧЕНО') {
-      await syncOrderWithAmoCRM(order);
     }
 
     res.status(200).json({ data: order });
