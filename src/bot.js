@@ -3,8 +3,8 @@ const TelegramBot = require("node-telegram-bot-api");
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: false });
 
-const GROUP_CHAT_ID_PENDING = "-1002402657259";
-const GROUP_CHAT_ID_PAID = "-4513393147";
+const GROUP_CHAT_ID_PENDING = "-4570225346";
+const GROUP_CHAT_ID_PAID = "-4564047481";
 
 const pendingMessageMap = new Map();
 
