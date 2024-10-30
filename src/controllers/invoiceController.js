@@ -42,15 +42,15 @@ const createInvoice = async (req, res) => {
     while (retries > 0) {
       const updatedOrder = await Orders.findOne({ invoiceNumber }).populate(
         "course_id"
-      ); 
+      );
 
       if (updatedOrder) {
         console.log("Order found, sending to bot:", updatedOrder);
-        sendOrderToBot(updatedOrder);
+        sendOrderToBot(updatedOrder); 
         break;
       }
 
-      await delay(1000); 
+      await delay(1000);
       retries--;
     }
 

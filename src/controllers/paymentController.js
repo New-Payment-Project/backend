@@ -1,7 +1,7 @@
 const Courses = require("../models/courseModel");
 const Orders = require("../models/orderModel");
 const Invoice = require("../models/invoiceModel");
-const { sendOrderToBot } = require("../bot");
+const { updateOrderStatus } = require("../bot");
 const { syncOrderWithAmoCRM } = require('../controllers/orderController')
 
 const handlePaymeRequest = async (req, res) => {
@@ -365,8 +365,7 @@ const performTransaction = async (req, res) => {
     const updatedOrder = await Orders.findOne({
       invoiceNumber: transaction.invoiceNumber,
     }).populate("course_id");
-    sendOrderToBot(updatedOrder);
-    await syncOrderWithAmoCRM(updatedOrder);
+    updateOrderStatus(updatedOrder);
 
     await Invoice.findOneAndUpdate(
       { invoiceNumber: transaction.invoiceNumber },
