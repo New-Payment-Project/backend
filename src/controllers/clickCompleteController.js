@@ -3,7 +3,7 @@ const Order = require("../models/orderModel");
 const Invoice = require("../models/invoiceModel");
 const { sendOrderToBot } = require("../bot");
 const SECRET_KEY = process.env.CLICK_SECRET_KEY;
-const { syncOrderWithAmoCRM } = require('../services/amocrmServices')
+const { syncOrderWithAmoCRM } = require('../controllers/orderController')
 
 exports.completePayment = async (req, res) => {
   const _postData = req.body;

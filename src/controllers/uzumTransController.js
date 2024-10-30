@@ -6,7 +6,7 @@ const Course = require("../models/courseModel");
 const Invoice = require("../models/invoiceModel");
 const User = require("../models/userModel");
 const { sendOrderToBot } = require("../bot");
-const { syncOrderWithAmoCRM } = require('../services/amocrmServices')
+const { syncOrderWithAmoCRM } = require('../controllers/orderController')
 
 const realServiceId = 498614016;
 
