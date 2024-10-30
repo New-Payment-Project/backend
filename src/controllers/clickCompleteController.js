@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const Order = require("../models/orderModel");
 const Invoice = require("../models/invoiceModel");
+const { sendOrderToBot } = require("../bot");
 const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 
 exports.completePayment = async (req, res) => {
@@ -13,7 +14,7 @@ exports.completePayment = async (req, res) => {
     });
   }
 
-  console.log(req.body)
+  console.log(req.body);
 
   const {
     click_trans_id,
@@ -38,7 +39,15 @@ exports.completePayment = async (req, res) => {
       )
       .digest("hex");
 
-    console.log(click_trans_id, service_id, SECRET_KEY, merchant_trans_id, amount, action, sign_time)
+    console.log(
+      click_trans_id,
+      service_id,
+      SECRET_KEY,
+      merchant_trans_id,
+      amount,
+      action,
+      sign_time
+    );
     console.log(`${sign_string}`);
     console.log(`${calculatedSign}`);
 
@@ -50,15 +59,13 @@ exports.completePayment = async (req, res) => {
       });
     }
 
-
     const order = await Order.findOne({ invoiceNumber: merchant_trans_id });
     if (!order) {
       console.log("No order");
       return res.status(400).json({ error: -9, error_note: "Order not found" });
     }
 
-
-    console.log("Amount chumbils", typeof amount, typeof order.amount)
+    console.log("Amount chumbils", typeof amount, typeof order.amount);
 
     if (amount !== String(order.amount)) {
       console.log("Invalid amount");
@@ -96,7 +103,6 @@ exports.completePayment = async (req, res) => {
     }
 
     console.log(typeof error);
-    
 
     if (parseInt(error) === 0) {
       await Order.findOneAndUpdate(
@@ -114,7 +120,12 @@ exports.completePayment = async (req, res) => {
         { status: "ОПЛАЧЕНО" }
       );
 
-      console.log("success")
+      const updatedOrder = await Order.findOne({
+        invoiceNumber: String(merchant_trans_id),
+      }).populate("course_id");
+      sendOrderToBot(updatedOrder);
+
+      console.log("success");
 
       return res.status(200).json({
         click_trans_id,
