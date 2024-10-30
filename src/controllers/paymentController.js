@@ -366,7 +366,7 @@ const performTransaction = async (req, res) => {
       invoiceNumber: transaction.invoiceNumber,
     }).populate("course_id");
     updateOrderStatus(updatedOrder);
-
+    await syncOrderWithAmoCRM(updatedOrder)
     await Invoice.findOneAndUpdate(
       { invoiceNumber: transaction.invoiceNumber },
       { status: "ОПЛАЧЕНО" }
