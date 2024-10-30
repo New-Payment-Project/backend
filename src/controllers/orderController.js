@@ -4,6 +4,7 @@ const amocrmService = require("../services/amocrmServices");
 const getOrders = async (req, res) => {
   try {
     const orders = await Order.find().populate("course_id");
+
     res.status(200).json({ data: orders });
   } catch (error) {
     console.error("Error getting orders:", error);
@@ -19,7 +20,6 @@ const getOrderById = async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
-
     res.status(200).json({ data: order });
   } catch (error) {
     console.error("Error getting order:", error);
@@ -47,12 +47,11 @@ const createOrder = async (req, res) => {
       prefix
     } = req.body;
 
-    const createTimeUnix = new Date(create_time).getTime() / 1000;
 
     const newOrder = new Order({
       transactionId,
       invoiceNumber,
-      create_time: createTimeUnix,
+      create_time,
       perform_time: null,
       cancel_time: null,
       state,
@@ -88,28 +87,23 @@ const syncOrderWithAmoCRM = async (order) => {
     const phone = order.clientPhone;
     const invoiceNumber = order.invoiceNumber;
 
-    // Map order statuses to AmoCRM pipeline statuses
     const statusMapping = {
-      "ВЫСТАВЛЕНО": 71258234,  // Первичный контакт
-      "ОПЛАЧЕНО": 71258222,    // Оплачено
-      "ОТМЕНЕНО": 71258226,    // Отменено
-      "НЕ ОПЛАЧЕНО": 71258230  // Не оплачено
+      "ВЫСТАВЛЕНО": 71258234,
+      "ОПЛАЧЕНО": 71258222, 
+      "ОТМЕНЕНО": 71258226, 
+      "НЕ ОПЛАЧЕНО": 71258230 
     };
 
-    // Set the status_id based on the order's status
-    const statusId = statusMapping[order.status] || 71258234; // Default to "ВЫСТАВЛЕНО"
+    const statusId = statusMapping[order.status] || 71258234;
 
-    // Find existing deals by client phone number
     const existingDeals = await amocrmService.findDealByPhone(phone, accessToken);
 
-    // Check if there's an existing deal with the same invoice number
     const matchingDeal = existingDeals.find(deal =>
       deal.custom_fields_values?.some(f => 
-        (f.field_id === 1628273 && f.values[0].value === invoiceNumber)
+        (f.field_id === 1628273 && f.values[0].value === invoiceNumber)  
       )
     );
 
-    // Define the data structure for creating/updating the deal
     const dealData = {
       "pipeline_id": 8812830,
       "name": dealName,
@@ -126,12 +120,10 @@ const syncOrderWithAmoCRM = async (order) => {
     };
 
     if (matchingDeal) {
-      // Update the existing deal if a match is found
       console.log(`Updating existing deal with ID: ${matchingDeal.id} for invoiceNumber: ${invoiceNumber}`);
       await amocrmService.updateDeal(matchingDeal.id, dealData, accessToken);
       console.log(`Updated existing deal for course "${order.courseTitle}" with phone ${phone}.`);
     } else {
-      // Create a new deal if no match is found
       console.log(`Creating a new deal for phone ${phone} and name "${dealName}".`);
       await amocrmService.createDeal([dealData], accessToken);
       console.log(`Created new deal for course "${order.courseTitle}" with phone ${phone}.`);

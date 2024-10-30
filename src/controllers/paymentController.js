@@ -363,7 +363,7 @@ const performTransaction = async (req, res) => {
     );
     const updatedOrder = await Orders.findOne({
       invoiceNumber: transaction.invoiceNumber,
-    });
+    }).populate("course_id");
     sendOrderToBot(updatedOrder);
 
     await Invoice.findOneAndUpdate(
