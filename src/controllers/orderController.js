@@ -110,14 +110,12 @@ const syncOrderWithAmoCRM = async (order) => {
 
     // Определяем `pipeline_id` и соответствие статусов в зависимости от префикса курса
     const isForumPrefix = order.course_id.prefix === "F";
-    const pipelineId = isForumPrefix ? 8812830 : 8820650;
+    const pipelineId = isForumPrefix ? 8732934 : 8820650;
 
     const statusMapping = isForumPrefix
       ? {
-          "ВЫСТАВЛЕНО": 71258234, // статус для "PAYMENT Forum"
-          "ОПЛАЧЕНО": 71258222,
-          "ОТМЕНЕНО": 71258226,
-          "НЕ ОПЛАЧЕНО": 71258230
+          "ВЫСТАВЛЕНО": 70702490, // статус для "PAYMENT Forum"
+          "ОПЛАЧЕНО": 142,
         }
       : {
           "ВЫСТАВЛЕНО": 71299438, // статус для "PAYMENT Markaz"
@@ -126,7 +124,7 @@ const syncOrderWithAmoCRM = async (order) => {
           "НЕ ОПЛАЧЕНО": 71299442
         };
 
-    const statusId = statusMapping[order.status] || (isForumPrefix ? 71258234 : 71299438); // Статус по умолчанию — "ВЫСТАВЛЕНО"
+    const statusId = statusMapping[order.status] || (isForumPrefix ? 70702490 : 71299438); // Статус по умолчанию — "ВЫСТАВЛЕНО"
 
     console.log(`Pipeline ID: ${pipelineId}, Status ID: ${statusId}`); // Проверка pipeline_id и status_id
 
