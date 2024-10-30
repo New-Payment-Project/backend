@@ -4,7 +4,6 @@ const amocrmService = require("../services/amocrmServices");
 const getOrders = async (req, res) => {
   try {
     const orders = await Order.find().populate("course_id");
-
     res.status(200).json({ data: orders });
   } catch (error) {
     console.error("Error getting orders:", error);
@@ -44,9 +43,9 @@ const createOrder = async (req, res) => {
       passport,
       tgUsername,
       courseTitle,
-      prefix
+      prefix,
+      paymentType
     } = req.body;
-
 
     const newOrder = new Order({
       transactionId,
@@ -63,15 +62,37 @@ const createOrder = async (req, res) => {
       clientAddress,
       passport,
       tgUsername,
-      prefix,
       courseTitle,
       reason: null,
-      status: status || 'НЕ ОПЛАЧЕНО'
+      status: status || 'НЕ ОПЛАЧЕНО',
+      paymentType
     });
 
     await newOrder.save();
 
-    await syncOrderWithAmoCRM(newOrder);
+    // Логика повторных попыток для ожидания заполнения course_id
+    let retries = 5;
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    while (retries > 0) {
+      const updatedOrder = await Order.findOne({ invoiceNumber }).populate("course_id");
+
+      if (updatedOrder && updatedOrder.course_id && updatedOrder.course_id.prefix) {
+        console.log("Order found with course_id, syncing with AmoCRM:", updatedOrder);
+        await syncOrderWithAmoCRM(updatedOrder);  // Теперь отправляем в syncOrderWithAmoCRM
+        break;
+      }
+
+      console.log(`Retrying... (${retries} retries left)`);
+      await delay(1000);  // Задержка 1 секунда перед следующей попыткой
+      retries--;
+    }
+
+    if (retries === 0) {
+      console.warn(
+        `Order with invoiceNumber ${invoiceNumber} does not have course_id populated after retries`
+      );
+    }
 
     res.status(201).json({ message: "Order created", data: newOrder });
   } catch (error) {
@@ -87,31 +108,45 @@ const syncOrderWithAmoCRM = async (order) => {
     const phone = order.clientPhone;
     const invoiceNumber = order.invoiceNumber;
 
-    const statusMapping = {
-      "ВЫСТАВЛЕНО": 71258234,
-      "ОПЛАЧЕНО": 71258222, 
-      "ОТМЕНЕНО": 71258226, 
-      "НЕ ОПЛАЧЕНО": 71258230 
-    };
+    // Определяем `pipeline_id` и соответствие статусов в зависимости от префикса курса
+    const isForumPrefix = order.course_id.prefix === "F";
+    const pipelineId = isForumPrefix ? 8732934 : 8820650;
 
-    const statusId = statusMapping[order.status] || 71258234;
+    const statusMapping = isForumPrefix
+      ? {
+          "ВЫСТАВЛЕНО": 70702490, // статус для "PAYMENT Forum"
+          "ОПЛАЧЕНО": 142,
+        }
+      : {
+          "ВЫСТАВЛЕНО": 71299438, // статус для "PAYMENT Markaz"
+          "ОПЛАЧЕНО": 71299450,
+          "ОТМЕНЕНО": 71299446,
+          "НЕ ОПЛАЧЕНО": 71299442
+        };
 
+    const statusId = statusMapping[order.status] || (isForumPrefix ? 70702490 : 71299438); // Статус по умолчанию — "ВЫСТАВЛЕНО"
+
+    console.log(`Pipeline ID: ${pipelineId}, Status ID: ${statusId}`); // Проверка pipeline_id и status_id
+
+    // Поиск существующих сделок по телефону клиента
     const existingDeals = await amocrmService.findDealByPhone(phone, accessToken);
 
+    // Проверка на существование сделки с тем же invoiceNumber
     const matchingDeal = existingDeals.find(deal =>
       deal.custom_fields_values?.some(f => 
-        (f.field_id === 1628273 && f.values[0].value === invoiceNumber)  
+        (f.field_id === 1628273 && f.values[0].value === invoiceNumber)   // Проверка invoiceNumber
       )
     );
 
+    // Данные для обновления или создания сделки
     const dealData = {
-      "pipeline_id": 8812830,
+      "pipeline_id": pipelineId,  // Установка воронки на основе префикса
       "name": dealName,
       "price": order.amount,
-      "status_id": statusId,
+      "status_id": statusId,  // Устанавливаем `status_id` на основе статуса заказа
       "custom_fields_values": [
-        { "field_id": 1623197, "values": [{ "value": order.clientName }] },
-        { "field_id": 1623203, "values": [{ "value": order.clientPhone }] },
+        { "field_id": 1628435, "values": [{ "value": order.clientName }] },
+        { "field_id": 1628433, "values": [{ "value": order.clientPhone }] },
         { "field_id": 1628267, "values": [{ "value": order.tgUsername || 'нет' }] },
         { "field_id": 1628269, "values": [{ "value": order.courseTitle }] },
         { "field_id": 1628271, "values": [{ "value": order.status }] },
@@ -119,12 +154,17 @@ const syncOrderWithAmoCRM = async (order) => {
       ]
     };
 
+    console.log("Deal data being sent:", JSON.stringify(dealData, null, 2)); // Проверка данных перед отправкой
+
     if (matchingDeal) {
+      // Если сделка найдена, обновляем её
       console.log(`Updating existing deal with ID: ${matchingDeal.id} for invoiceNumber: ${invoiceNumber}`);
+      dealData.pipeline_id = matchingDeal.pipeline_id; // Устанавливаем pipeline_id из существующей сделки
       await amocrmService.updateDeal(matchingDeal.id, dealData, accessToken);
       console.log(`Updated existing deal for course "${order.courseTitle}" with phone ${phone}.`);
     } else {
-      console.log(`Creating a new deal for phone ${phone} and name "${dealName}".`);
+      // Если сделка не найдена, создаём новую
+      console.log(`Creating a new deal for phone ${phone} and name "${dealName}" with pipeline_id ${pipelineId}.`);
       await amocrmService.createDeal([dealData], accessToken);
       console.log(`Created new deal for course "${order.courseTitle}" with phone ${phone}.`);
     }
