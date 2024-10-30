@@ -1,5 +1,5 @@
 const TelegramBot = require("node-telegram-bot-api");
-const token = "7230758974:AAEUk-Vf46omoACp-lfm6mZmCMc1qkDp9_o";
+const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: false });
 
 const GROUP_CHAT_ID_PENDING = "-4570225346";
@@ -19,21 +19,24 @@ const sendOrderToBot = (orderData) => {
 
   const statusSticker = orderData.status === "ОПЛАЧЕНО" ? "✅" : "🟡";
 
-  const chatId = orderData.status === "ОПЛАЧЕНО" ? GROUP_CHAT_ID_PAID : GROUP_CHAT_ID_PENDING;
+  const chatId =
+    orderData.status === "ОПЛАЧЕНО"
+      ? GROUP_CHAT_ID_PAID
+      : GROUP_CHAT_ID_PENDING;
 
   const message = `
-    🧾 Заказ ${orderData.course_id?.prefix || ""}${orderData.invoiceNumber}:
-    🔸 Курс: ${orderData.courseTitle}
-    🔸 Клиент: ${orderData.clientName}
-    🔸 Телефон: ${orderData.clientPhone}    
-    🔸 Телеграм: ${orderData.tgUsername || "Kiritilmagan"}
-    ${statusSticker} Статус: ${orderData.status}
+    🧾 <b>Заказ ${orderData.course_id?.prefix || ""}${orderData.invoiceNumber}:</b>
+    🔸 <b>Курс:</b> ${orderData.courseTitle}
+    🔸 <b>Клиент:</b> ${orderData.clientName}
+    🔸 <b>Телефон:</b> ${orderData.clientPhone}    
+    🔸 <b>Телеграм:</b> ${orderData.tgUsername || "Kiritilmagan"}
+    ${statusSticker} <b>Статус:</b> ${orderData.status}
 
-    🇺🇿 Сумма: ${formattedAmount} сум
+    🇺🇿 <b>Сумма:</b> ${formattedAmount} сум
   `;
 
   bot
-    .sendMessage(chatId, message)
+    .sendMessage(chatId, message, { parse_mode: "HTML" })
     .then(() => console.log("Message sent successfully"))
     .catch((error) => {
       console.error("Error sending message to bot:", error.message);
