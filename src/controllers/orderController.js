@@ -1,4 +1,3 @@
-
 const Order = require("../models/orderModel");
 
 const getOrders = async (req, res) => {
