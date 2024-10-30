@@ -4,11 +4,11 @@ const amocrmService = require("../services/amocrmServices");
 const getOrders = async (req, res) => {
   try {
     const orders = await Order.find().populate("course_id");
-    for (const order of orders) {
-      if (order.status === 'ОПЛАЧЕНО') {
-        await syncOrderWithAmoCRM(order);
-      }
-    }
+    // for (const order of orders) {
+    //   if (order.status === 'ОПЛАЧЕНО') {
+    //     await syncOrderWithAmoCRM(order);
+    //   }
+    // }
     res.status(200).json({ data: orders });
   } catch (error) {
     console.error("Error getting orders:", error);
@@ -25,9 +25,9 @@ const getOrderById = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    if (order.status === 'ОПЛАЧЕНО') {
-      await syncOrderWithAmoCRM(order);
-    }
+    // if (order.status === 'ОПЛАЧЕНО') {
+    //   await syncOrderWithAmoCRM(order);
+    // }
 
     res.status(200).json({ data: order });
   } catch (error) {
@@ -81,7 +81,7 @@ const createOrder = async (req, res) => {
 
     await newOrder.save();
 
-    await syncOrderWithAmoCRM(newOrder);
+    // await syncOrderWithAmoCRM(newOrder);
 
     res.status(201).json({ message: "Order created", data: newOrder });
   } catch (error) {
