@@ -132,8 +132,8 @@ const generateContractPDF = async (req, res) => {
 
     doc.rect(leftColumnX, tableTop, 220, tableHeight).stroke();
     doc.text(`Заказчик: ${order.clientName}`, leftColumnX + 10, tableTop + 20, {width: 200});
-    doc.text(`Телефон: ${order.clientPhone}`, leftColumnX + 10, tableTop + 40, {width: 200});
-    doc.text(`Телеграм: ${order.tgUsername}`, leftColumnX + 10, tableTop + 60, {width: 200});
+    doc.text(`Телефон: ${order.clientPhone}`, leftColumnX + 10, tableTop + 60, {width: 200});
+    doc.text(`Телеграм: ${order.tgUsername}`, leftColumnX + 10, tableTop + 80, {width: 200});
 
     doc.rect(rightColumnX, tableTop, 220, tableHeight).stroke();
     doc.text('«Хизмат кўрсатувчи»', rightColumnX + 10, tableTop + 10);
