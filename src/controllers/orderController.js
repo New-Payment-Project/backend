@@ -163,6 +163,8 @@ const syncOrderWithAmoCRM = async (order) => {
         : `${order.amount} сум`
       : "нет данных";
 
+    console.log("Price Type", typeof fixedPrice);
+
     // Данные для обновления или создания сделки
     const dealData = {
       pipeline_id: pipelineId, // Установка воронки на основе префикса
