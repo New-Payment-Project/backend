@@ -169,7 +169,7 @@ const syncOrderWithAmoCRM = async (order) => {
     const dealData = {
       pipeline_id: pipelineId, // Установка воронки на основе префикса
       name: dealName,
-      price: fixedPrice,
+      price: parseInt(fixedPrice),
       status_id: statusId, // Устанавливаем `status_id` на основе статуса заказа
       custom_fields_values: [
         { field_id: 1628435, values: [{ value: order.clientName }] },
