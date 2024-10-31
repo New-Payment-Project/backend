@@ -178,4 +178,5 @@ module.exports = {
   getOrders,
   getOrderById,
   createOrder,
+  syncOrderWithAmoCRM
 };
