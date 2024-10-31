@@ -3,8 +3,8 @@ const TelegramBot = require("node-telegram-bot-api");
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: false });
 
-const GROUP_CHAT_ID_PENDING = "-4570225346";
-const GROUP_CHAT_ID_PAID = "-4564047481";
+const GROUP_CHAT_ID_PENDING = "-1002402657259";
+const GROUP_CHAT_ID_PAID = "-4513393147";
 
 const pendingMessageMap = new Map();
 
@@ -28,7 +28,7 @@ const sendOrderToBot = (orderData) => {
       : GROUP_CHAT_ID_PENDING;
 
   const message = `
-    🧾 <b>Заказ12 ${orderData.course_id?.prefix || ""}${
+    🧾 <b>Заказ ${orderData.course_id?.prefix || ""}${
     orderData.invoiceNumber
   }:</b>
     🔸 <b>Курс:</b> ${orderData.courseTitle}
@@ -45,7 +45,6 @@ const sendOrderToBot = (orderData) => {
     .then((sentMessage) => {
       console.log("Message sent successfully");
 
-      // Only store pending messages
       if (orderData.status === "ВЫСТАВЛЕНО") {
         console.log(
           `Storing message ID ${sentMessage.message_id} for invoice ${orderData.invoiceNumber}`
@@ -60,29 +59,28 @@ const sendOrderToBot = (orderData) => {
 
 const updateOrderStatus = (orderData) => {
   if (orderData.status === "ОПЛАЧЕНО") {
-    const messageId = pendingMessageMap.get(orderData.invoiceNumber);
-    console.log(
-      `Attempting to delete message ID ${messageId} for invoice ${orderData.invoiceNumber}`
-    );
+    sendOrderToBot(orderData);
 
-    if (messageId) {
-      bot
-        .deleteMessage(GROUP_CHAT_ID_PENDING, messageId)
-        .then(() => {
-          console.log("Pending message deleted successfully");
-          pendingMessageMap.delete(orderData.invoiceNumber);
-        })
-        .catch((error) =>
-          console.error("Error deleting message from pending group:", error)
-        );
-    } else {
-      console.warn(
-        `Message ID for invoice ${orderData.invoiceNumber} not found in pendingMessageMap`
+    const paidNotification = `
+      ✅ <b>Заказ ${orderData.course_id?.prefix || ""}${
+      orderData.invoiceNumber
+    }</b> Оплачен
+    `;
+
+    bot
+      .sendMessage(GROUP_CHAT_ID_PENDING, paidNotification, {
+        parse_mode: "HTML",
+      })
+      .then(() => console.log("Paid notification sent to PENDING group"))
+      .catch((error) =>
+        console.error(
+          "Error sending paid notification to PENDING group:",
+          error
+        )
       );
-    }
+  } else {
+    sendOrderToBot(orderData);
   }
-
-  sendOrderToBot(orderData);
 };
 
 module.exports = { bot, sendOrderToBot, updateOrderStatus };

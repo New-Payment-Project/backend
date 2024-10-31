@@ -7,7 +7,6 @@ const CreateTransaction = async (req, res) => {
         if (!userId || !username || !amount || !status || !category) {
             return res.status(400).json({ message: 'All fields are required' })
         }
-
         // Create a new transaction
         const transaction = await TransactionSchema.create({
             userId,
