@@ -6,8 +6,8 @@ const {
   createOrder,
 } = require("../controllers/orderController");
 
-router.get("/orders", getOrders);
-router.get("/orders/:id", getOrderById);
-router.post("/orders/create", createOrder);
+router.get("/", getOrders);
+router.get("/:id", getOrderById);
+router.post("/create", createOrder);
 
 module.exports = router;

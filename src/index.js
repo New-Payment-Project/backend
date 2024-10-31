@@ -68,9 +68,9 @@ app.use(express.urlencoded({ extended: false })); //true
 app.use("/", paymentRoutes);
 app.use("/", generateClickUrl);
 app.use("/api/v1/uzum-bank", uzumAuthMiddleware, uzumBankRoutes);
-app.use("/api/v1", authMiddleware, courseRoutes);
-app.use("/api/v1", authMiddleware, invoiceRoutes);
-app.use("/api/v1", authMiddleware, orderRoutes);
+app.use("/api/v1/courses", authMiddleware, courseRoutes);
+app.use("/api/v1/invoices", authMiddleware, invoiceRoutes);
+app.use("/api/v1/orders", authMiddleware, orderRoutes);
 app.use("/api/v1/counter", counterRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
