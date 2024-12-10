@@ -43,6 +43,10 @@ app.use(
       "https://forum.norbekovgroup.uz",
       "http://174.138.43.233:3000",
       "http://174.138.43.233:3001",
+
+      // Telegram Web API domains
+      "https://web.telegram.org",
+      
       // Banks
       "https://test.paycom.uz",
       "https://217.29.119.130",
