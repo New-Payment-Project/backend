@@ -31,7 +31,7 @@ const sendOrderToBot = (orderData) => {
     🧾 <b>Заказ ${orderData.course_id?.prefix || ""}${
     orderData.invoiceNumber
   }:</b>
-    🔸 <b>Курс:</b> ${orderData.courseTitle}
+    🔸 <b>Курс:</b> ${decodeURIComponent(orderData.courseTitle)}
     🔸 <b>Клиент:</b> ${orderData.clientName}
     🔸 <b>Телефон:</b> ${orderData.clientPhone}    
     🔸 <b>Телеграм:</b> ${orderData.tgUsername || "Kiritilmagan"}
