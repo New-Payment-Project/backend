@@ -59,7 +59,7 @@ exports.preparePayment = async (req, res) => {
       });
     }
 
-    const order = await Order.findOne({ invoiceNumber: merchant_trans_id });
+    const order = await Order.One({ invoiceNumber: merchant_trans_id });
     if (!order) {
       console.log("No order");
       return res.status(400).json({
