@@ -9,7 +9,7 @@ const exportToExcel = async (req, res) => {
     const data = await Order.find({
       _id: { $in: orderIdArray }
     });
-
+    
     const rows = data.map((order, id) => ({
       ID: id + 1,
       ClientName: order.clientName || "N/A",
@@ -42,6 +42,5 @@ const exportToExcel = async (req, res) => {
     res.status(500).send("Error generating Excel file");
   }
 };
-
 
 module.exports = { exportToExcel };
