@@ -11,6 +11,7 @@ const uzumBankRoutes = require("../routes/uzumBankRoutes");
 const clickPrepRoutes = require("../routes/clickPrepRoutes");
 const clickCompleteRoutes = require("../routes/clickCompleteRoute");
 const generateClickUrl = require('../routes/generateClickUrl')
+const exportToExcel = require('../routes/exportToExcelRoute')
 
 module.exports = {
   clickCompleteRoutes,
@@ -25,5 +26,6 @@ module.exports = {
   authRoutes,
   transactionRoutes,
   uzumBankRoutes,
-  generateClickUrl
+  generateClickUrl,
+  exportToExcel
 };

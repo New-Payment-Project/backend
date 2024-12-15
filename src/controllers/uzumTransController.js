@@ -175,7 +175,7 @@ const createTransaction = async (req, res) => {
         paymentType: "Uzum",
       });
     } else {
-      order = await Order.findByIdAndUpdate(
+      order = await Order.findOneAndUpdate(
         { invoiceNumber: params.invoiceNumber },
         {
           transactionId: transId,
@@ -277,7 +277,7 @@ const confirmTransaction = async (req, res) => {
     res.status(200).json({
       serviceId: serviceId,
       transId: transId,
-      status: "CONFIRMED",
+      status: "CONFIRMED",  
       confirmTime: Date.now(),
       data: {
         courseId: {

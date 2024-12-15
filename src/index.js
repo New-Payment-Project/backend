@@ -1,10 +1,10 @@
-const path = require('path');
+const path = require("path");
 const express = require("express");
 const connectDB = require("./config/database");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const morgan = require('morgan');
+const morgan = require("morgan");
 const { globalLimiter } = require("./services/requestRateLimiter");
 const authMiddleware = require("./middlware/auth");
 const uzumAuthMiddleware = require("./middlware/uzumAuthMiddleware");
@@ -24,6 +24,7 @@ const {
   transactionRoutes,
   uzumBankRoutes,
   generateClickUrl,
+  exportToExcel,
 } = require("./config/allRoutes");
 
 dotenv.config();
@@ -42,6 +43,10 @@ app.use(
       "https://forum.norbekovgroup.uz",
       "http://174.138.43.233:3000",
       "http://174.138.43.233:3001",
+
+      // Telegram Web API domains
+      "https://web.telegram.org",
+      
       // Banks
       "https://test.paycom.uz",
       "https://217.29.119.130",
@@ -60,8 +65,8 @@ app.use(
   })
 );
 
-app.set('trust proxy', 1);
-app.use(morgan('combined'));
+app.set("trust proxy", 1);
+app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false })); //true
 
@@ -79,7 +84,8 @@ app.use("/api/v1", invoiceOrdersRoutes);
 app.use("/api/v1/click", clickPrepRoutes);
 app.use("/api/v1/click", clickCompleteRoutes);
 app.use("/api/v1", pdfGenerateRoute);
-app.use('/contracts', express.static(path.join(__dirname, 'contracts')));
+app.use("/api/v1/export", exportToExcel);
+app.use("/contracts", express.static(path.join(__dirname, "contracts")));
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

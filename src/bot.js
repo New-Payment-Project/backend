@@ -12,7 +12,7 @@ const sendOrderToBot = (orderData) => {
   console.log("Sending order data:", orderData);
 
   const amountToDisplay =
-    orderData.status === "ОПЛАЧЕНО" ? orderData.amount / 100 : orderData.amount;
+    orderData.status === "ОПЛАЧЕНО" && orderData.paymentType !== "Click" ? orderData.amount / 100 : orderData.amount;
 
   const formattedAmount = new Intl.NumberFormat("ru-RU", {
     style: "decimal",
@@ -31,7 +31,7 @@ const sendOrderToBot = (orderData) => {
     🧾 <b>Заказ ${orderData.course_id?.prefix || ""}${
     orderData.invoiceNumber
   }:</b>
-    🔸 <b>Курс:</b> ${orderData.courseTitle}
+    🔸 <b>Курс:</b> ${decodeURIComponent(orderData.courseTitle)}
     🔸 <b>Клиент:</b> ${orderData.clientName}
     🔸 <b>Телефон:</b> ${orderData.clientPhone}    
     🔸 <b>Телеграм:</b> ${orderData.tgUsername || "Kiritilmagan"}
