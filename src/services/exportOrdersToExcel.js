@@ -3,13 +3,11 @@ const Order = require("../models/orderModel");
 
 const exportToExcel = async (req, res) => {
   try {
-    // Get the order IDs from query params (should be a comma-separated list)
     const { orderIds } = req.query;
     const orderIdArray = orderIds ? orderIds.split(',') : [];
 
-    // Find orders that match the provided IDs (if any)
     const data = await Order.find({
-      _id: { $in: orderIdArray } // Match only the orders whose IDs are in the array
+      _id: { $in: orderIdArray }
     });
 
     const rows = data.map((order, id) => ({
