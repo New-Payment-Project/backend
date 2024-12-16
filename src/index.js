@@ -60,10 +60,11 @@ app.use(
       "https://norbekovgroup.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
     credentials: true,
   })
 );
+app.options('*', cors());
 
 app.set("trust proxy", 1);
 app.use(morgan("combined"));

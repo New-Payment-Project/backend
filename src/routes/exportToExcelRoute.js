@@ -2,6 +2,7 @@ const router = require('express').Router()
 
 const { exportToExcel } = require('../services/exportOrdersToExcel');
 
-router.get('/order', exportToExcel);
+router.post('/order', exportToExcel);
 
 module.exports = router
+    
