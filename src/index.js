@@ -9,6 +9,8 @@ const { globalLimiter } = require("./services/requestRateLimiter");
 const authMiddleware = require("./middlware/auth");
 const uzumAuthMiddleware = require("./middlware/uzumAuthMiddleware");
 const pdfGenerateRoute = require("./routes/pdfGenerateRoute");
+require("./cronJobs");
+
 
 const {
   clickCompleteRoutes,
