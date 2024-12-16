@@ -3,13 +3,13 @@ const Order = require("../models/orderModel");
 
 const exportToExcel = async (req, res) => {
   try {
-    const { orderIds } = req.query;
-    const orderIdArray = orderIds ? orderIds.split(',') : [];
+    const { orderIds } = req.body; // Extract from body
+    if (!Array.isArray(orderIds) || orderIds.length === 0) {
+      return res.status(400).send("Invalid or missing 'orderIds'");
+    }
 
-    const data = await Order.find({
-      _id: { $in: orderIdArray }
-    });
-    
+    const data = await Order.find({ _id: { $in: orderIds } });
+
     const rows = data.map((order, id) => ({
       ID: id + 1,
       ClientName: order.clientName || "N/A",
@@ -38,7 +38,7 @@ const exportToExcel = async (req, res) => {
     );
     res.send(excelBuffer);
   } catch (error) {
-    console.error(error);
+    console.error("Error generating Excel file:", error);
     res.status(500).send("Error generating Excel file");
   }
 };

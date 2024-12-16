@@ -1,8 +1,6 @@
-const router = require('express').Router()
+const router = require("express").Router();
+const { exportToExcel } = require("../services/exportOrdersToExcel");
 
-const { exportToExcel } = require('../services/exportOrdersToExcel');
+router.post("/order", exportToExcel);
 
-router.post('/order', exportToExcel);
-
-module.exports = router
-    
+module.exports = router;
