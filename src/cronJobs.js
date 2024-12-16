@@ -1,8 +1,8 @@
 const cron = require("node-cron");
-const Order = require("./models/orderModel"); 
+const Order = require("./models/orderModel");
 const moment = require("moment");
 
-cron.schedule("0 0 * * *", async () => {
+cron.schedule("* * * * *", async () => {
   console.log("Running cron job to cancel unpaid orders...");
 
   try {
