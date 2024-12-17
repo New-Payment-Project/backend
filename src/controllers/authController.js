@@ -35,7 +35,78 @@ exports.registerUser = async (req, res) => {
         });
     }
 };
+exports.getUsers = async (req, res) => {
+    try {
+        const users = await User.find();
+        res.status(200).json({
+            status:'success',
+            users
+        });
+    } catch (err) {
+        console.error('Get Users Error: ', err.message || err);
+        res.status(500).json({
+            status: 'error',
+            message: 'Server error',
+            error: err.message || err
+        });
+    }
+}
+exports.changePassword = async (req, res) => {
+    const { userId, newPassword } = req.body;
 
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'User not found'
+            });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({
+            status:'success',
+            message: 'Password changed successfully'
+        });
+    } catch (err) {
+        console.error('Change Password Error: ', err.message || err);
+        res.status(500).json({
+            status: 'error',
+            message: 'Server error',
+            error: err.message || err
+        });
+    }
+}
+exports.deleteUser = async (req, res) => {
+    const { userId } = req.body;
+
+    try {
+        const user = await User.findByIdAndDelete(userId);
+        if (!user) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'User not found'
+            });
+        }
+
+        res.status(200).json({
+            status:'success',
+            message: 'User deleted successfully'
+        });
+    } catch (err) {
+        console.error('Delete User Error: ', err.message || err);
+        res.status(500).json({
+            status: 'error',
+            message: 'Server error',
+            error: err.message || err
+        });
+    }
+}
 // User login
 exports.loginUser = async (req, res) => {
     const { login, password } = req.body;
