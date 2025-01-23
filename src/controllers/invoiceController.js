@@ -50,9 +50,9 @@ const createInvoice = async (req, res) => {
     //     break;
     //   }
 
-      await delay(1000);
-      retries--;
-    }
+    //   await delay(1000);
+    //   retries--;
+    // }
 
     if (retries === 0) {
       console.warn(
