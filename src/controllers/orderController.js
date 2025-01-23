@@ -1,5 +1,5 @@
 const Order = require("../models/orderModel");
-const amocrmService = require("../services/amocrmServices");
+// const amocrmService = require("../services/amocrmServices");
 
 const getOrders = async (req, res) => {
   try {
@@ -114,102 +114,102 @@ const createOrder = async (req, res) => {
   }
 };
 
-const syncOrderWithAmoCRM = async (order) => {
-  try {
-    const accessToken = await amocrmService.ensureValidAccessToken();
-    const dealName = `${order.invoiceNumber} - ${order.courseTitle}`;
-    const phone = order.clientPhone;
-    const invoiceNumber = order.invoiceNumber;
+// const syncOrderWithAmoCRM = async (order) => {
+//   try {
+//     const accessToken = await amocrmService.ensureValidAccessToken();
+//     const dealName = `${order.invoiceNumber} - ${order.courseTitle}`;
+//     const phone = order.clientPhone;
+//     const invoiceNumber = order.invoiceNumber;
 
-    // Определяем `pipeline_id` и соответствие статусов в зависимости от префикса курса
-    const isForumPrefix = order.course_id.prefix === "F";
-    const pipelineId = isForumPrefix ? 8732934 : 8544438;
+//     // Определяем `pipeline_id` и соответствие статусов в зависимости от префикса курса
+//     const isForumPrefix = order.course_id.prefix === "F";
+//     const pipelineId = isForumPrefix ? 8732934 : 8544438;
 
-    const statusMapping = isForumPrefix
-      ? {
-          ВЫСТАВЛЕНО: 70702490, // статус для "PAYMENT Forum"
-          ОПЛАЧЕНО: 142,
-        }
-      : {
-          ВЫСТАВЛЕНО: 69394294, // статус для "PAYMENT Markaz"
-          ОПЛАЧЕНО: 142,
-          ОТМЕНЕНО: 71299446,
-          "НЕ ОПЛАЧЕНО": 71299442,
-        };
+//     const statusMapping = isForumPrefix
+//       ? {
+//           ВЫСТАВЛЕНО: 70702490, // статус для "PAYMENT Forum"
+//           ОПЛАЧЕНО: 142,
+//         }
+//       : {
+//           ВЫСТАВЛЕНО: 69394294, // статус для "PAYMENT Markaz"
+//           ОПЛАЧЕНО: 142,
+//           ОТМЕНЕНО: 71299446,
+//           "НЕ ОПЛАЧЕНО": 71299442,
+//         };
 
-    const statusId =
-      statusMapping[order.status] || (isForumPrefix ? 70702490 : 69394294); // Статус по умолчанию — "ВЫСТАВЛЕНО"
+//     const statusId =
+//       statusMapping[order.status] || (isForumPrefix ? 70702490 : 69394294); // Статус по умолчанию — "ВЫСТАВЛЕНО"
 
-    console.log(`Pipeline ID: ${pipelineId}, Status ID: ${statusId}`); // Проверка pipeline_id и status_id
+//     console.log(`Pipeline ID: ${pipelineId}, Status ID: ${statusId}`); // Проверка pipeline_id и status_id
 
-    // Поиск существующих сделок по телефону клиента
-    const existingDeals = await amocrmService.findDealByPhone(
-      phone,
-      accessToken
-    );
+//     // Поиск существующих сделок по телефону клиента
+//     const existingDeals = await amocrmService.findDealByPhone(
+//       phone,
+//       accessToken
+//     );
 
-    // Проверка на существование сделки с тем же invoiceNumber
-    const matchingDeal = existingDeals.find((deal) =>
-      deal.custom_fields_values?.some(
-        (f) => f.field_id === 1628273 && f.values[0].value === invoiceNumber // Проверка invoiceNumber
-      )
-    );
+//     // Проверка на существование сделки с тем же invoiceNumber
+//     const matchingDeal = existingDeals.find((deal) =>
+//       deal.custom_fields_values?.some(
+//         (f) => f.field_id === 1628273 && f.values[0].value === invoiceNumber // Проверка invoiceNumber
+//       )
+//     );
 
-    const fixedPrice = order.amount
-      ? order.status === "ОПЛАЧЕНО"
-        ? order.paymentType !== "Click"
-          ? `${order.amount / 100} сум`
-          : `${order.amount} сум`
-        : `${order.amount} сум`
-      : "нет данных";
+//     const fixedPrice = order.amount
+//       ? order.status === "ОПЛАЧЕНО"
+//         ? order.paymentType !== "Click"
+//           ? `${order.amount / 100} сум`
+//           : `${order.amount} сум`
+//         : `${order.amount} сум`
+//       : "нет данных";
 
-    console.log("Price Type", typeof fixedPrice);
+//     console.log("Price Type", typeof fixedPrice);
 
-    // Данные для обновления или создания сделки
-    const dealData = {
-      pipeline_id: pipelineId, // Установка воронки на основе префикса
-      name: dealName,
-      price: parseInt(fixedPrice),
-      status_id: statusId, // Устанавливаем `status_id` на основе статуса заказа
-      custom_fields_values: [
-        { field_id: 1628435, values: [{ value: order.clientName }] },
-        { field_id: 1628433, values: [{ value: order.clientPhone }] },
-        { field_id: 1628267, values: [{ value: order.tgUsername || "нет" }] },
-        { field_id: 1628269, values: [{ value: order.courseTitle }] },
-        { field_id: 1628271, values: [{ value: order.status }] },
-        { field_id: 1628273, values: [{ value: order.invoiceNumber }] },
-      ],
-    };
+//     // Данные для обновления или создания сделки
+//     const dealData = {
+//       pipeline_id: pipelineId, // Установка воронки на основе префикса
+//       name: dealName,
+//       price: parseInt(fixedPrice),
+//       status_id: statusId, // Устанавливаем `status_id` на основе статуса заказа
+//       custom_fields_values: [
+//         { field_id: 1628435, values: [{ value: order.clientName }] },
+//         { field_id: 1628433, values: [{ value: order.clientPhone }] },
+//         { field_id: 1628267, values: [{ value: order.tgUsername || "нет" }] },
+//         { field_id: 1628269, values: [{ value: order.courseTitle }] },
+//         { field_id: 1628271, values: [{ value: order.status }] },
+//         { field_id: 1628273, values: [{ value: order.invoiceNumber }] },
+//       ],
+//     };
 
-    console.log("Deal data being sent:", JSON.stringify(dealData, null, 2)); // Проверка данных перед отправкой
+//     console.log("Deal data being sent:", JSON.stringify(dealData, null, 2)); // Проверка данных перед отправкой
 
-    if (matchingDeal) {
-      // Если сделка найдена, обновляем её
-      console.log(
-        `Updating existing deal with ID: ${matchingDeal.id} for invoiceNumber: ${invoiceNumber}`
-      );
-      dealData.pipeline_id = matchingDeal.pipeline_id; // Устанавливаем pipeline_id из существующей сделки
-      await amocrmService.updateDeal(matchingDeal.id, dealData, accessToken);
-      console.log(
-        `Updated existing deal for course "${order.courseTitle}" with phone ${phone}.`
-      );
-    } else {
-      // Если сделка не найдена, создаём новую
-      console.log(
-        `Creating a new deal for phone ${phone} and name "${dealName}" with pipeline_id ${pipelineId}.`
-      );
-      await amocrmService.createDeal([dealData], accessToken);
-      console.log(
-        `Created new deal for course "${order.courseTitle}" with phone ${phone}.`
-      );
-    }
-  } catch (error) {
-    console.error(
-      `Error syncing order with phone ${order.clientPhone}:`,
-      error.message
-    );
-  }
-};
+//     if (matchingDeal) {
+//       // Если сделка найдена, обновляем её
+//       console.log(
+//         `Updating existing deal with ID: ${matchingDeal.id} for invoiceNumber: ${invoiceNumber}`
+//       );
+//       dealData.pipeline_id = matchingDeal.pipeline_id; // Устанавливаем pipeline_id из существующей сделки
+//       await amocrmService.updateDeal(matchingDeal.id, dealData, accessToken);
+//       console.log(
+//         `Updated existing deal for course "${order.courseTitle}" with phone ${phone}.`
+//       );
+//     } else {
+//       // Если сделка не найдена, создаём новую
+//       console.log(
+//         `Creating a new deal for phone ${phone} and name "${dealName}" with pipeline_id ${pipelineId}.`
+//       );
+//       await amocrmService.createDeal([dealData], accessToken);
+//       console.log(
+//         `Created new deal for course "${order.courseTitle}" with phone ${phone}.`
+//       );
+//     }
+//   } catch (error) {
+//     console.error(
+//       `Error syncing order with phone ${order.clientPhone}:`,
+//       error.message
+//     );
+//   }
+// };
 
 
 const deleteOrder = async (req, res) => {

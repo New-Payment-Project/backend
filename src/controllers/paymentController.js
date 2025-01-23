@@ -1,8 +1,8 @@
 const Courses = require("../models/courseModel");
 const Orders = require("../models/orderModel");
 const Invoice = require("../models/invoiceModel");
-const { updateOrderStatus } = require("../bot");
-const { syncOrderWithAmoCRM } = require('../controllers/orderController')
+// const { updateOrderStatus } = require("../bot");
+// const { syncOrderWithAmoCRM } = require('../controllers/orderController')
 
 const handlePaymeRequest = async (req, res) => {
   const { method } = req.body;
@@ -362,11 +362,11 @@ const performTransaction = async (req, res) => {
       { invoiceNumber: transaction.invoiceNumber },
       { status: "ОПЛАЧЕНО" }
     );
-    const updatedOrder = await Orders.findOne({
-      invoiceNumber: transaction.invoiceNumber,
-    }).populate("course_id");
-    updateOrderStatus(updatedOrder);
-    await syncOrderWithAmoCRM(updatedOrder)
+    // const updatedOrder = await Orders.findOne({
+    //   invoiceNumber: transaction.invoiceNumber,
+    // }).populate("course_id");
+    // updateOrderStatus(updatedOrder);
+    // await syncOrderWithAmoCRM(updatedOrder)
     await Invoice.findOneAndUpdate(
       { invoiceNumber: transaction.invoiceNumber },
       { status: "ОПЛАЧЕНО" }

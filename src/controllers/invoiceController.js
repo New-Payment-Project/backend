@@ -2,7 +2,7 @@ const Invoice = require("../models/invoiceModel");
 const Course = require("../models/courseModel");
 const Counter = require("../models/counterModel");
 const Orders = require("../models/orderModel");
-const { sendOrderToBot } = require("../bot");
+// const { sendOrderToBot } = require("../bot");
 
 async function getNextSequenceValue(sequenceName) {
   const sequenceDocument = await Counter.findByIdAndUpdate(
@@ -36,19 +36,19 @@ const createInvoice = async (req, res) => {
     const newInvoice = await invoice.save();
     res.status(201).json(newInvoice);
 
-    let retries = 5;
-    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    // let retries = 5;
+    // const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    while (retries > 0) {
-      const updatedOrder = await Orders.findOne({ invoiceNumber }).populate(
-        "course_id"
-      );
+    // while (retries > 0) {
+    //   const updatedOrder = await Orders.findOne({ invoiceNumber }).populate(
+    //     "course_id"
+    //   );
 
-      if (updatedOrder) {
-        console.log("Order found, sending to bot:", updatedOrder);
-        sendOrderToBot(updatedOrder); 
-        break;
-      }
+    //   if (updatedOrder) {
+    //     console.log("Order found, sending to bot:", updatedOrder);
+    //     sendOrderToBot(updatedOrder); 
+    //     break;
+    //   }
 
       await delay(1000);
       retries--;

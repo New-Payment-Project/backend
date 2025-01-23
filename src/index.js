@@ -40,14 +40,9 @@ app.use(
   cors({
     origin: [
       // Server domains and IP
-      "https://billing.norbekovgroup.uz",
-      "https://markaz.norbekovgroup.uz",
-      "https://forum.norbekovgroup.uz",
-      "http://174.138.43.233:3000",
-      "http://174.138.43.233:3001",
-
-      // Telegram Web API domains
-      "https://web.telegram.org",
+      "https://dma.com.uz",
+      "http://104.236.217.100:3000",
+      "http://104.236.217.100:3001",
       
       // Banks
       "https://test.paycom.uz",
@@ -56,10 +51,10 @@ app.use(
       "https://217.29.119.132",
       "https://217.29.119.133",
       "https://217.12.88.66",
+      
       // Test environments
       "http://localhost:3000",
       "http://localhost:3001",
-      "https://norbekovgroup.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization", "Accept"],
