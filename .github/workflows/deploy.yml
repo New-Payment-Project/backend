@@ -29,6 +29,7 @@ jobs:
       - name: Deploy to server
         run: |
           ssh -o StrictHostKeyChecking=no root@104.236.217.100 "
+            source /root/.nvm/nvm.sh &&
             cd /var/www/backend &&
             git pull origin main &&
             npm install &&
