@@ -41,8 +41,9 @@ app.use(
     origin: [
       // Server domains and IP
       "https://dma.com.uz",
-      "http://104.236.217.100:3000",
-      "http://104.236.217.100:3001",
+      "https://api.dma.com.uz",
+      "https://forum.dma.com.uz",
+      "https://billing.dma.com.uz",
       
       // Banks
       "https://test.paycom.uz",
