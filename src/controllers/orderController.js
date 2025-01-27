@@ -92,7 +92,7 @@ const createOrder = async (req, res) => {
           "Order found with course_id, syncing with AmoCRM:",
           updatedOrder
         );
-        await syncOrderWithAmoCRM(updatedOrder); // Теперь отправляем в syncOrderWithAmoCRM
+        // await syncOrderWithAmoCRM(updatedOrder); // Теперь отправляем в syncOrderWithAmoCRM
         break;
       }
 
