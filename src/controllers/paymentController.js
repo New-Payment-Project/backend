@@ -43,7 +43,7 @@ const handlePaymeRequest = async (req, res) => {
 };
 
 const checkPerform = async (req, res) => {
-  const { amount, account } = req.body || {};
+  const { amount, account } = req.body.params || {};
 
   console.log("Received request in checkPerform:", req.body);
 
@@ -124,7 +124,7 @@ const checkPerform = async (req, res) => {
 };
 
 const createTransaction = async (req, res) => {
-  const { id, time, amount, account } = req.body || {};
+  const { id, time, amount, account } = req.body.params || {};
 
   console.log("Received request in createTransaction:", req.body);
 
@@ -301,7 +301,7 @@ const createTransaction = async (req, res) => {
 };
 
 const performTransaction = async (req, res) => {
-  const { id } = req.body || {};
+  const { id } = req.body.params || {};
 
   console.log("Received request in performTransaction:", req.body);
 
@@ -323,6 +323,8 @@ const performTransaction = async (req, res) => {
 
   try {
     let transaction = await Orders.findOne({ transactionId: id });
+    console.log("TRANSACTION: ", transaction);
+    console.log("TRANS ID: ", id);
 
     if (!transaction) {
       return res.json({
@@ -401,7 +403,7 @@ const performTransaction = async (req, res) => {
 };
 
 const checkTransaction = async (req, res) => {
-  const { id } = req.body || {};
+  const { id } = req.body.params || {};
 
   console.log("Received request in checkTransaction:", req.body);
 
@@ -471,7 +473,7 @@ const checkTransaction = async (req, res) => {
 };
 
 const getStatement = async (req, res) => {
-  const { from, to } = req.body || {};
+  const { from, to } = req.body.params || {};
 
   console.log("Received request in getStatement:", req.body);
 
@@ -558,7 +560,7 @@ const getStatement = async (req, res) => {
 };
 
 const cancelTransaction = async (req, res) => {
-  const { id, reason } = req.body || {};
+  const { id, reason } = req.body.params || {};
 
   console.log("Received request in cancelTransaction:", req.body);
 
