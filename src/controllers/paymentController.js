@@ -322,7 +322,7 @@ const performTransaction = async (req, res) => {
   }
 
   try {
-    let transaction = await Orders.findOne({ transactionId: id });
+    let transaction = await Orders.findOne({ transactionId: String(id) });
     console.log("TRANSACTION: ", transaction);
     console.log("TRANS ID: ", id);
 
