@@ -368,8 +368,7 @@ const performTransaction = async (req, res) => {
         result: {
           transaction: transaction.transactionId,
           perform_time: transaction.perform_time,
-          state: transaction.state,
-          status: transaction.status,
+          state: transaction.state
         },
       });
     }
@@ -399,8 +398,7 @@ const performTransaction = async (req, res) => {
       result: {
         transaction: transaction.transactionId,
         perform_time: transaction.perform_time,
-        state: transaction.state,
-        status: transaction.status,
+        state: transaction.state
       },
     });
   } catch (error) {
