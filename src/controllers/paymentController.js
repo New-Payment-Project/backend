@@ -230,8 +230,9 @@ const createTransaction = async (req, res) => {
     }
 
     let order = await Orders.findOne({ invoiceNumber });
+    console.log("ORDER BY INVOICE NUMBER", order)
 
-    if (order.transactionId !== id) {
+    if (order?.transactionId && order?.transactionId !== id) {
       return res.json({
         jsonrpc: "2.0",
         id: req.body.id,
