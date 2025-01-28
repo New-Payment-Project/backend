@@ -231,6 +231,22 @@ const createTransaction = async (req, res) => {
 
     let order = await Orders.findOne({ invoiceNumber });
 
+    if (order.transactionId !== id) {
+      return res.json({
+        jsonrpc: "2.0",
+        id: req.body.id,
+        error: {
+          code: -31050,
+          message: {
+            ru: "Неверный идентификатор транзакции",
+            uz: "Tranzaksiya identifikatori noto‘g‘ri",
+            en: "Invalid transaction ID",
+          },
+          data: "id",
+        },
+      });
+    }
+
     if (!order) {
       return res.json({
         jsonrpc: "2.0",
