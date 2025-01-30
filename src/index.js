@@ -43,6 +43,7 @@ app.use(
       "https://dma.com.uz",
       "https://api.dma.com.uz",
       "https://forum.dma.com.uz",
+      "https://markaz.dma.com.uz",
       "https://billing.dma.com.uz",
       
       // Banks
