@@ -3,7 +3,6 @@ const express = require("express");
 const connectDB = require("./config/database");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const { globalLimiter } = require("./services/requestRateLimiter");
 const authMiddleware = require("./middlware/auth");
@@ -84,7 +83,7 @@ app.use("/api/v1", invoiceOrdersRoutes);
 app.use("/api/v1/click", clickPrepRoutes);
 app.use("/api/v1/click", clickCompleteRoutes);
 app.use("/api/v1", pdfGenerateRoute);
-app.use("/api/v1", sendEmailRoutes);
+// app.use("/api/v1", sendEmailRoutes);
 app.use("/api/v1/export", exportToExcel);
 app.use("/contracts", express.static(path.join(__dirname, "contracts")));
 

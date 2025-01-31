@@ -1,6 +1,8 @@
 const Courses = require("../models/courseModel");
 const Orders = require("../models/orderModel");
 const Invoice = require("../models/invoiceModel");
+
+const sendEmail = require("../services/emailSender");
 // const { updateOrderStatus } = require("../bot");
 // const { syncOrderWithAmoCRM } = require('../controllers/orderController')
 
@@ -230,7 +232,7 @@ const createTransaction = async (req, res) => {
     }
 
     let order = await Orders.findOne({ invoiceNumber });
-    console.log("ORDER BY INVOICE NUMBER", order)
+    console.log("ORDER BY INVOICE NUMBER", order);
 
     if (order?.transactionId && order?.transactionId !== id) {
       return res.json({
@@ -339,11 +341,9 @@ const performTransaction = async (req, res) => {
   }
 
   try {
-    let transaction = await Orders.findOne({ transactionId: id });
-    let orders = await Orders.find();
-    console.log("All TRANSACTIONS: ", orders);
-    console.log("TRANSACTION: ", transaction);
-    console.log("TRANS ID: ", id);
+    let transaction = await Orders.findOne({ transactionId: id }).populate(
+      "course_id"
+    );
 
     if (!transaction) {
       return res.json({
@@ -368,7 +368,7 @@ const performTransaction = async (req, res) => {
         result: {
           transaction: transaction.transactionId,
           perform_time: transaction.perform_time,
-          state: transaction.state
+          state: transaction.state,
         },
       });
     }
@@ -392,13 +392,19 @@ const performTransaction = async (req, res) => {
       { status: "ОПЛАЧЕНО" }
     );
 
+    await sendEmail(
+      transaction.tgUsername,
+      "TakeTicket.UZ - payment was successful!",
+      transaction.course_id.successMessage
+    );
+
     res.json({
       jsonrpc: "2.0",
       id: req.body.id,
       result: {
         transaction: transaction.transactionId,
         perform_time: transaction.perform_time,
-        state: transaction.state
+        state: transaction.state,
       },
     });
   } catch (error) {
