@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const tokenSchema = new mongoose.Schema({
   access_token: String,
@@ -6,4 +6,4 @@ const tokenSchema = new mongoose.Schema({
   expires_at: Date,
 });
 
-module.exports = mongoose.model('Token', tokenSchema);
+module.exports = mongoose.model("Token", tokenSchema);

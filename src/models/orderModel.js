@@ -1,78 +1,78 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
   transactionId: {
     type: String,
-    required: false
+    required: false,
   },
   invoiceNumber: {
     type: String,
-    required: false
+    required: false,
   },
   create_time: {
     type: Number,
-    required: false
+    required: false,
   },
   perform_time: {
-    type: Number
+    type: Number,
   },
   cancel_time: {
-    type: Number
+    type: Number,
   },
   state: {
     type: Number,
-    required: false
+    required: false,
   },
   amount: {
     type: Number,
-    required: false
+    required: false,
   },
   course_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Course',
-    required: false
+    ref: "Course",
+    required: false,
   },
   courseTitle: {
     type: String,
-    required: false
+    required: false,
   },
   clientName: {
     type: String,
-    required: false
+    required: false,
   },
   clientPhone: {
     type: String,
-    required: false
+    required: false,
   },
   clientAddress: {
     type: String,
-    required: false
+    required: false,
   },
   tgUsername: {
     type: String,
-    required: false
+    required: false,
   },
   passport: {
     type: String,
-    required: false
+    required: false,
   },
   reason: {
-    type: Number
+    type: Number,
   },
   status: {
     type: String,
-    enum: ['НЕ ОПЛАЧЕНО', 'ВЫСТАВЛЕНО', 'ОПЛАЧЕНО', 'ОТМЕНЕНО'],
-    default: 'НЕ ОПЛАЧЕНО'
+    enum: ["НЕ ОПЛАЧЕНО", "ВЫСТАВЛЕНО", "ОПЛАЧЕНО", "ОТМЕНЕНО"],
+    default: "НЕ ОПЛАЧЕНО",
   },
   paymentType: {
     type: String,
-    enum: ["Payme", "Click", "Uzum"]
+    enum: ["Payme", "Click", "Uzum"],
   },
   contractUrl: {
     type: String,
     default: null,
-    required: false
+    required: false,
   },
 });
 
-module.exports = mongoose.model('Orders', orderSchema);
+module.exports = mongoose.model("Orders", orderSchema);

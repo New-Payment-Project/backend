@@ -1,4 +1,4 @@
-const Course = require('../models/courseModel');
+const Course = require("../models/courseModel");
 
 const getCourses = async (req, res) => {
   try {
@@ -10,57 +10,57 @@ const getCourses = async (req, res) => {
 };
 
 const createCourse = async (req, res) => {
-    const { title, description, price, route, prefix } = req.body;
-  
-    try {
-      const existingCourse = await Course.findOne({ route });
-      if (existingCourse) {
-        return res.status(409).json({ message: 'Course with this route already exists' });
-      }
-      const course = new Course({
-        title,
-        description,
-        price,
-        route,
-        prefix,
-      });
-  
-      const newCourse = await course.save();
-      res.status(201).json(newCourse);
-  
-    } catch (err) {
-      res.status(400).json({ message: err.message });
+  const { title, description, price, route, prefix, successMessage } = req.body;
+
+  try {
+    const existingCourse = await Course.findOne({ route });
+    if (existingCourse) {
+      return res
+        .status(409)
+        .json({ message: "Course with this route already exists" });
     }
-  };
-  
-  
+    const course = new Course({
+      title,
+      description,
+      price,
+      route,
+      prefix,
+      successMessage,
+    });
+
+    const newCourse = await course.save();
+    res.status(201).json(newCourse);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
 
 const deleteCourse = async (req, res) => {
   try {
     const deletedCourse = await Course.findByIdAndDelete(req.params.id);
 
     if (!deletedCourse) {
-      return res.status(404).json({ message: 'Course not found' });
+      return res.status(404).json({ message: "Course not found" });
     }
 
-    res.json({ message: 'Course deleted successfully', deletedCourse });
+    res.json({ message: "Course deleted successfully", deletedCourse });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
 const updateCourse = async (req, res) => {
-  const { title, description, price, route, prefix } = req.body;
+  const { title, description, price, route, prefix, successMessage } = req.body;
 
   try {
     const updatedCourse = await Course.findByIdAndUpdate(
       req.params.id,
-      { title, description, price, route, prefix },
+      { title, description, price, route, prefix, successMessage },
       { new: true, runValidators: true }
     );
 
     if (!updatedCourse) {
-      return res.status(404).json({ message: 'Course not found' });
+      return res.status(404).json({ message: "Course not found" });
     }
 
     res.json(updatedCourse);
@@ -78,7 +78,7 @@ const patchCourse = async (req, res) => {
     );
 
     if (!updatedCourse) {
-      return res.status(404).json({ message: 'Course not found' });
+      return res.status(404).json({ message: "Course not found" });
     }
 
     res.json(updatedCourse);
@@ -87,4 +87,10 @@ const patchCourse = async (req, res) => {
   }
 };
 
-module.exports = { getCourses, createCourse, deleteCourse, updateCourse, patchCourse };
+module.exports = {
+  getCourses,
+  createCourse,
+  deleteCourse,
+  updateCourse,
+  patchCourse,
+};

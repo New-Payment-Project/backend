@@ -11,7 +11,6 @@ const uzumAuthMiddleware = require("./middlware/uzumAuthMiddleware");
 const pdfGenerateRoute = require("./routes/pdfGenerateRoute");
 require("./cronJobs");
 
-
 const {
   clickCompleteRoutes,
   clickPrepRoutes,
@@ -27,6 +26,7 @@ const {
   uzumBankRoutes,
   generateClickUrl,
   exportToExcel,
+  sendEmailRoutes,
 } = require("./config/allRoutes");
 
 dotenv.config();
@@ -45,7 +45,7 @@ app.use(
       "https://forum.dma.com.uz",
       "https://markaz.dma.com.uz",
       "https://billing.dma.com.uz",
-      
+
       // Banks
       "https://test.paycom.uz",
       "https://217.29.119.130",
@@ -53,7 +53,7 @@ app.use(
       "https://217.29.119.132",
       "https://217.29.119.133",
       "https://217.12.88.66",
-      
+
       // Test environments
       "http://localhost:3000",
       "http://localhost:3001",
@@ -63,7 +63,7 @@ app.use(
     credentials: true,
   })
 );
-app.options('*', cors());
+app.options("*", cors());
 
 app.set("trust proxy", 1);
 app.use(morgan("combined"));
@@ -84,6 +84,7 @@ app.use("/api/v1", invoiceOrdersRoutes);
 app.use("/api/v1/click", clickPrepRoutes);
 app.use("/api/v1/click", clickCompleteRoutes);
 app.use("/api/v1", pdfGenerateRoute);
+app.use("/api/v1", sendEmailRoutes);
 app.use("/api/v1/export", exportToExcel);
 app.use("/contracts", express.static(path.join(__dirname, "contracts")));
 
