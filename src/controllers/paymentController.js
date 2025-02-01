@@ -392,13 +392,13 @@ const performTransaction = async (req, res) => {
       { status: "ОПЛАЧЕНО" }
     );
 
-    const sendEmail = await sendEmail(
+    const sendEmailStatus = await sendEmail(
       transaction.tgUsername,
       "TakeTicket.UZ - payment was successful!",
       transaction.course_id.successMessage
     );
 
-    console.log("sendEmail: " + sendEmail)
+    console.log("sendEmail: " + sendEmailStatus)
 
     res.json({
       jsonrpc: "2.0",
