@@ -2,7 +2,7 @@ const Invoice = require("../models/invoiceModel");
 const Course = require("../models/courseModel");
 const Counter = require("../models/counterModel");
 const Orders = require("../models/orderModel");
-// const { sendOrderToBot } = require("../bot");
+const { sendOrderToBot } = require("../bot");
 
 async function getNextSequenceValue(sequenceName) {
   const sequenceDocument = await Counter.findByIdAndUpdate(
