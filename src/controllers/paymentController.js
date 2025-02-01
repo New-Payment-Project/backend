@@ -3,7 +3,7 @@ const Orders = require("../models/orderModel");
 const Invoice = require("../models/invoiceModel");
 
 const sendEmail = require("../services/emailSender");
-// const { updateOrderStatus } = require("../bot");
+const { updateOrderStatus } = require("../bot");
 // const { syncOrderWithAmoCRM } = require('../controllers/orderController')
 
 const handlePaymeRequest = async (req, res) => {
@@ -382,15 +382,18 @@ const performTransaction = async (req, res) => {
       { invoiceNumber: transaction.invoiceNumber },
       { status: "ОПЛАЧЕНО" }
     );
-    // const updatedOrder = await Orders.findOne({
-    //   invoiceNumber: transaction.invoiceNumber,
-    // }).populate("course_id");
-    // updateOrderStatus(updatedOrder);
+    const updatedOrder = await Orders.findOne({
+      invoiceNumber: transaction.invoiceNumber,
+    }).populate("course_id");
+    updateOrderStatus(updatedOrder);
     // await syncOrderWithAmoCRM(updatedOrder)
     await Invoice.findOneAndUpdate(
       { invoiceNumber: transaction.invoiceNumber },
       { status: "ОПЛАЧЕНО" }
     );
+
+    console.log("SendMessage: ", transaction.course_id.successMessage);
+    console.log("email: ", transaction.tgUsername);
 
     await sendEmail(
       transaction.tgUsername,

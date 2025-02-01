@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const Order = require("../models/orderModel");
 const Invoice = require("../models/invoiceModel");
-// const { updateOrderStatus } = require("../bot");
+const { updateOrderStatus } = require("../bot");
 const SECRET_KEY = process.env.CLICK_SECRET_KEY;
 // const { syncOrderWithAmoCRM } = require('../controllers/orderController')
 
@@ -121,10 +121,10 @@ exports.completePayment = async (req, res) => {
         { status: "ОПЛАЧЕНО" }
       );
 
-      // const updatedOrder = await Order.findOne({
-      //   invoiceNumber: String(merchant_trans_id),
-      // }).populate("course_id");
-      // updateOrderStatus(updatedOrder);
+      const updatedOrder = await Order.findOne({
+        invoiceNumber: String(merchant_trans_id),
+      }).populate("course_id");
+      updateOrderStatus(updatedOrder);
       // await syncOrderWithAmoCRM(updatedOrder);
 
       console.log("success");
