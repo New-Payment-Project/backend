@@ -85,7 +85,8 @@ app.use("/api/v1/click", clickCompleteRoutes);
 app.use("/api/v1", pdfGenerateRoute);
 // app.use("/api/v1", sendEmailRoutes);
 app.use("/api/v1/export", exportToExcel);
-app.use("/contracts", express.static(path.join(__dirname, "contracts")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

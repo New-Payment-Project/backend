@@ -14,7 +14,7 @@ const generateContractPDF = async (req, res) => {
         .send("Договор может быть создан только для оплаченных заказов.");
     }
 
-    const contractDir = path.join(__dirname, "..", "contracts");
+    const contractDir = path.join(__dirname, "..", "uploads/contracts");
     if (!fs.existsSync(contractDir)) {
       fs.mkdirSync(contractDir, { recursive: true });
     }
@@ -40,7 +40,7 @@ const generateContractPDF = async (req, res) => {
 
       res.status(200).send(pdfBuffer);
 
-      const contractUrl = `/contracts/contract_${order.invoiceNumber}.pdf`;
+      const contractUrl = `/uploads/contracts/contract_${order.invoiceNumber}.pdf`;
 
       await Order.updateOne({ _id: order._id }, { $set: { contractUrl } });
     });
